@@ -16,7 +16,7 @@ export default function Hero() {
   useEffect(() => {
     const fetchData = async () => {
       const snap = await getDoc(
-        doc(db, "websites", "RbplWebThree", "pages", "home")
+        doc(db, "websites", "globalbiomedicals", "pages", "home")
       );
 
       if (snap.exists()) {

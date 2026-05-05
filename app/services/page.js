@@ -12,7 +12,7 @@ export default function Services() {
     const fetchData = async () => {
       try {
         const snap = await getDoc(
-          doc(db, "websites", "RbplWebThree", "pages", "services")
+          doc(db, "websites", "globalbiomedicals", "pages", "services")
         );
 
         if (snap.exists()) {

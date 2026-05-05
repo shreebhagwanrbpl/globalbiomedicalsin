@@ -30,7 +30,7 @@ export default function Contact() {
     const load = async () => {
       try {
         const snap = await getDoc(
-          doc(db, "websites", "RbplWebThree", "pages", "contact")
+          doc(db, "websites", "globalbiomedicals", "pages", "contact")
         );
 
         if (snap.exists()) {
@@ -67,7 +67,7 @@ export default function Contact() {
 
     try {
       await addDoc(
-        collection(db, "websitesQueries", "RbplWebThree", "contactQueries"),
+        collection(db, "websitesQueries", "globalbiomedicals", "contactQueries"),
         {
           ...form,
           createdAt: serverTimestamp()
