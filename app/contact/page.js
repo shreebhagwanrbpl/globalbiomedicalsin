@@ -1,10 +1,100 @@
 "use client";
 
+import "./contact.css";
+import { useState, useEffect } from "react";
+import { db } from "@/lib/firebase";
+import {
+  addDoc,
+  collection,
+  serverTimestamp,
+  doc,
+  getDoc
+} from "firebase/firestore";
+
 export default function Contact() {
+
+  const [loading, setLoading] = useState(true);
+
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    subject: "",
+    message: ""
+  });
+
+  const [contactInfo, setContactInfo] = useState([]);
+
+  // 🔥 FETCH CONTACT INFO
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const snap = await getDoc(
+          doc(db, "websites", "RbplWebThree", "pages", "contact")
+        );
+
+        if (snap.exists()) {
+          setContactInfo(snap.data().contactInfo || []);
+        } else {
+          setContactInfo([]);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+
+      setLoading(false);
+    };
+
+    load();
+  }, []);
+
+  // ✅ FIXED CHANGE HANDLER
+  const handleChange = (e) => {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  // 🔥 SUBMIT
+  const handleSubmit = async () => {
+    const { name, email, phone, message } = form;
+
+    // validation
+    if (!name || !email || !phone || !message) {
+      return alert("Please fill all required fields");
+    }
+
+    try {
+      await addDoc(
+        collection(db, "websitesQueries", "RbplWebThree", "contactQueries"),
+        {
+          ...form,
+          createdAt: serverTimestamp()
+        }
+      );
+
+      alert("Message Sent ✅");
+
+      // reset
+      setForm({
+        name: "",
+        email: "",
+        phone: "",
+        subject: "",
+        message: ""
+      });
+
+    } catch (err) {
+      console.error(err);
+      alert("Error sending message");
+    }
+  };
+
   return (
     <div className="contact-page">
 
-      {/* 🔥 HERO */}
+      {/* HERO */}
       <section className="contact-hero text-center">
         <div className="container">
           <h1 className="fw-bold display-4">
@@ -16,79 +106,118 @@ export default function Contact() {
         </div>
       </section>
 
-      {/* 🔥 CONTACT SECTION */}
+      {/* CONTACT SECTION */}
       <section className="py-5">
         <div className="container">
           <div className="row g-5">
 
-            {/* 🔥 LEFT INFO */}
-            <div className="col-lg-5" data-aos="fade-right">
+            {/* LEFT */}
+            <div className="col-lg-5">
 
               <h4 className="fw-bold mb-3">Get In Touch</h4>
 
               <p className="text-muted">
-                We are here to help you with all your diagnostic and medical needs.
+                We are here to help you with all your diagnostic needs.
               </p>
 
-            <div className="contact-info mt-4">
+              <div className="contact-info mt-4">
 
-  <div className="info-box">
-    <i className="bi bi-geo-alt"></i>
-    <div>
-      <strong>Location</strong>
-      <p>Jaipur, India</p>
-    </div>
-  </div>
+                {loading ? (
+                  <p className="text-muted">Loading...</p>
+                ) : contactInfo.length === 0 ? (
+                  <p className="text-muted">No contact info added</p>
+                ) : (
+                  contactInfo.map((item, i) => (
+                    <div className="info-box" key={i}>
 
-  <div className="info-box">
-    <i className="bi bi-envelope"></i>
-    <div>
-      <strong>Email</strong>
-      <p>info@rajbiosis.com</p>
-    </div>
-  </div>
+                      <i className={
+                        item.label.toLowerCase().includes("address")
+                          ? "bi bi-geo-alt"
+                          : item.label.toLowerCase().includes("email")
+                          ? "bi bi-envelope"
+                          : item.label.toLowerCase().includes("phone")
+                          ? "bi bi-telephone"
+                          : "bi bi-info-circle"
+                      }></i>
 
-  <div className="info-box">
-    <i className="bi bi-telephone"></i>
-    <div>
-      <strong>Phone</strong>
-      <p>+91 XXXXX XXXXX</p>
-    </div>
-  </div>
+                      <div>
+                        <strong>{item.label}</strong>
+                        <p>{item.value}</p>
+                      </div>
 
-</div>
+                    </div>
+                  ))
+                )}
 
+              </div>
             </div>
 
-            {/* 🔥 RIGHT FORM */}
-            <div className="col-lg-7" data-aos="fade-left">
+            {/* RIGHT FORM */}
+            <div className="col-lg-7">
 
               <div className="contact-form">
 
                 <div className="row g-3">
 
                   <div className="col-md-6">
-                    <input type="text" placeholder="Your Name" className="input-field"/>
+                    <input
+                      type="text"
+                      name="name"
+                      placeholder="Your Name"
+                      className="input-field"
+                      onChange={handleChange}
+                      value={form.name}
+                    />
                   </div>
 
                   <div className="col-md-6">
-                    <input type="email" placeholder="Email Address" className="input-field"/>
+                    <input
+                      type="email"
+                      name="email"
+                      placeholder="Email Address"
+                      className="input-field"
+                      onChange={handleChange}
+                      value={form.email}
+                    />
                   </div>
 
                   <div className="col-md-6">
-                    <input type="text" placeholder="Phone Number" className="input-field"/>
+                    <input
+                      type="text"
+                      name="phone"
+                      placeholder="Phone Number"
+                      className="input-field"
+                      onChange={handleChange}
+                      value={form.phone}
+                    />
                   </div>
 
                   <div className="col-md-6">
-                    <input type="text" placeholder="Subject" className="input-field"/>
+                    <input
+                      type="text"
+                      name="subject"
+                      placeholder="Subject"
+                      className="input-field"
+                      onChange={handleChange}
+                      value={form.subject}
+                    />
                   </div>
 
                   <div className="col-12">
-                    <textarea rows="4" placeholder="Your Message"></textarea>
+                    <textarea
+                      name="message"
+                      rows="4"
+                      placeholder="Your Message"
+                      onChange={handleChange}
+                      value={form.message}
+                    />
                   </div>
 
                   <div className="col-12">
-                    <button className="btn submit-btn w-100">
+                    <button
+                      className="btn submit-btn w-100"
+                      onClick={handleSubmit}
+                    >
                       Send Message
                     </button>
                   </div>
@@ -102,162 +231,19 @@ export default function Contact() {
           </div>
         </div>
       </section>
-<section className="map-section">
-  <div className="container-fluid p-0">
 
-    <iframe
-      src="https://maps.google.com/maps?q=Raj%20Biosis%20Pvt%20Ltd%20Jaipur&t=&z=15&ie=UTF8&iwloc=&output=embed"
-      width="100%"
-      height="400"
-      style={{ border: 0 }}
-      loading="lazy"
-    ></iframe>
-
-  </div>
-</section>
-
-      {/* 🔥 STYLES */}
-      <style jsx>{`
-        .contact-page {
-          background: #f8fdfb;
-        }
-
-        /* HERO */
-        .contact-hero {
-          padding: 100px 0;
-          background: linear-gradient(135deg, #eefaf3, #f8fdfb);
-        }
-
-        .contact-hero span {
-          color: #198754;
-        }
-
-        .contact-hero p {
-          color: #666;
-        }
-
-        /* INFO */
-        .contact-info p {
-          margin-bottom: 10px;
-          font-size: 15px;
-        }
-
-        .contact-info i {
-          color: #198754;
-          margin-right: 8px;
-        }
-
-        /* FORM */
-        .contact-form {
-          background: #fff;
-          padding: 30px;
-          border-radius: 20px;
-          box-shadow: 0 20px 50px rgba(0,0,0,0.08);
-        }
-
-        .contact-form input,
-        .contact-form textarea {
-          width: 100%;
-          padding: 12px;
-          border-radius: 10px;
-          border: 1px solid #ddd;
-          outline: none;
-          transition: 0.3s;
-        }
-
-        .contact-form input:focus,
-        .contact-form textarea:focus {
-          border-color: #198754;
-          box-shadow: 0 0 10px rgba(25,135,84,0.2);
-        }
-
-        /* BUTTON */
-        .submit-btn {
-          background: linear-gradient(135deg, #198754, #0f5132);
-          color: white;
-          border-radius: 10px;
-          padding: 12px;
-          border: none;
-          transition: 0.3s;
-        }
-
-        .submit-btn:hover {
-          background: linear-gradient(135deg, #0f5132, #198754);
-        }
-            .map-section iframe {
-            border-radius: 0;
-        }
-
-        .info-box {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  background: #fff;
-  padding: 12px;
-  border-radius: 12px;
-  margin-bottom: 10px;
-  transition: 0.3s;
-}
-
-.info-box:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-}
-
-.info-box i {
-  font-size: 20px;
-  color: #198754;
-}
-
-.info-box p {
-  margin: 0;
-  font-size: 14px;
-  color: #666;
-}
-
-/* FORM IMPROVE */
-.contact-form {
-  background: rgba(255,255,255,0.9);
-  backdrop-filter: blur(10px);
-  padding: 35px;
-  border-radius: 20px;
-  box-shadow: 0 25px 60px rgba(0,0,0,0.1);
-}
-
-/* INPUT */
-.input-field {
-  width: 100%;
-  padding: 14px;
-  border-radius: 12px;
-  border: 1px solid #ddd;
-  transition: 0.3s;
-}
-
-.input-field:focus {
-  border-color: #198754;
-  box-shadow: 0 0 12px rgba(25,135,84,0.2);
-}
-
-/* BUTTON UPGRADE */
-.submit-btn {
-  background: linear-gradient(135deg, #198754, #0f5132);
-  color: white;
-  border-radius: 12px;
-  padding: 14px;
-  font-weight: 500;
-  transition: 0.3s;
-}
-
-.submit-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-}
-
-/* SECTION BACKGROUND */
-.contact-page {
-  background: linear-gradient(135deg, #f8fdfb, #eefaf3);
-}
-      `}</style>
+      {/* MAP */}
+      <section className="map-section">
+        <div className="container-fluid p-0">
+          <iframe
+            src="https://maps.google.com/maps?q=Jaipur&t=&z=15&ie=UTF8&iwloc=&output=embed"
+            width="100%"
+            height="400"
+            style={{ border: 0 }}
+            loading="lazy"
+          ></iframe>
+        </div>
+      </section>
 
     </div>
   );

@@ -1,6 +1,41 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+
 export default function Services() {
+  const [services, setServices] = useState([]);
+
+  // 🔥 FETCH DATA
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const snap = await getDoc(
+          doc(db, "websites", "RbplWebThree", "pages", "services")
+        );
+
+        if (snap.exists()) {
+          setServices(snap.data().services || []);
+        }
+      } catch (err) {
+        console.error("Error fetching services:", err);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // 🔥 FIXED ICON LIST (frontend controlled)
+  const icons = [
+    "bi-heart-pulse-fill",
+    "bi-capsule",
+    "bi-tools",
+    "bi-truck",
+    "bi-shield-check",
+    "bi-person-check",
+  ];
+
   return (
     <div className="services-page">
 
@@ -16,76 +51,29 @@ export default function Services() {
         </div>
       </section>
 
-      {/* 🔥 SERVICES CARDS */}
+      {/* 🔥 SERVICES */}
       <section className="py-5">
         <div className="container">
           <div className="row g-4">
 
-            {/* CARD 1 */}
-            <div className="col-md-4" data-aos="fade-up">
-              <div className="service-card">
-                <i className="bi bi-heart-pulse-fill"></i>
-                <h5>Diagnostic Equipment</h5>
-                <p>
-                  Advanced lab machines & analyzers for accurate diagnosis.
-                </p>
-              </div>
-            </div>
+            {services.length === 0 ? (
+              <p className="text-center">No Services Found</p>
+            ) : (
+              services.map((item, i) => (
+                <div className="col-md-4" key={i}>
+                  <div className="service-card">
 
-            {/* CARD 2 */}
-            <div className="col-md-4" data-aos="fade-up" data-aos-delay="100">
-              <div className="service-card">
-                <i className="bi bi-capsule"></i>
-                <h5>Medical Consumables</h5>
-                <p>
-                  High-quality reagents, kits & consumables for laboratories.
-                </p>
-              </div>
-            </div>
+                    {/* ICON */}
+                    <i className={`bi ${icons[i % icons.length]}`}></i>
 
-            {/* CARD 3 */}
-            <div className="col-md-4" data-aos="fade-up" data-aos-delay="200">
-              <div className="service-card">
-                <i className="bi bi-tools"></i>
-                <h5>Support & Maintenance</h5>
-                <p>
-                  Reliable after-sales service and equipment maintenance.
-                </p>
-              </div>
-            </div>
+                    {/* DATA */}
+                    <h5>{item.title || "Service Title"}</h5>
+                    <p>{item.desc || "Service Description"}</p>
 
-            {/* CARD 4 */}
-            <div className="col-md-4" data-aos="fade-up">
-              <div className="service-card">
-                <i className="bi bi-truck"></i>
-                <h5>Pan India Delivery</h5>
-                <p>
-                  Fast and secure delivery across hospitals and labs in India.
-                </p>
-              </div>
-            </div>
-
-            {/* CARD 5 */}
-            <div className="col-md-4" data-aos="fade-up" data-aos-delay="100">
-              <div className="service-card">
-                <i className="bi bi-shield-check"></i>
-                <h5>Quality Assurance</h5>
-                <p>
-                  Certified products ensuring accuracy, safety & reliability.
-                </p>
-              </div>
-            </div>
-
-            {/* CARD 6 */}
-            <div className="col-md-4" data-aos="fade-up" data-aos-delay="200">
-              <div className="service-card">
-                <i className="bi bi-person-check"></i>
-                <h5>Expert Consultation</h5>
-                <p>
-                  Guidance from experienced professionals for best solutions.
-                </p>
-              </div>
-            </div>
+                  </div>
+                </div>
+              ))
+            )}
 
           </div>
         </div>
