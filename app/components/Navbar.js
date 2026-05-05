@@ -29,11 +29,11 @@ export default function Navbar() {
             <li><Link href="/services" className="nav-link">Services</Link></li>
             <li><Link href="/products" className="nav-link">Products</Link></li>
             <li><Link href="/contact" className="nav-link">Contact</Link></li>
-            <li>
+            {/* <li>
               <Link href="/contact" className="btn btn-success px-3">
                 Get Quote
               </Link>
-            </li>
+            </li> */}
           </ul>
         </div>
       </div>

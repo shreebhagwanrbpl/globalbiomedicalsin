@@ -39,11 +39,11 @@ export default function Hero() {
             </span>
 
             <h1 className="fw-bold display-4">
-              {data?.title || "Default Title"}
+              {data?.title}
             </h1>
 
             <p className="mt-3 text-light">
-              {data?.description || "Default Description"}
+              {data?.description}
             </p>
 
             <div className="mt-4 d-flex gap-3">
@@ -51,12 +51,12 @@ export default function Hero() {
                 href={data?.button1Link || "/services"}
                 className="btn btn-success px-4 py-2"
               >
-                {data?.button1Text || "Explore Services"}
+                {data?.button1Text }
               </Link>
 
               <Link href={data?.button2Link || "/contact"}>
                 <button className="btn btn-outline-light px-4 py-2">
-                  {data?.button2Text || "Contact Us"}
+                  {data?.button2Text}
                 </button>
               </Link>
             </div>

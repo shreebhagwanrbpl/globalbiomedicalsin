@@ -232,3 +232,17 @@
   justify-content: space-between;
   font-size: 13px;
 }
+#react-hot-toast {
+  z-index: 9999999 !important;
+}
+
+.react-hot-toast {
+  z-index: 9999999 !important;
+}
+.custom-modal {
+  z-index: 9999;
+}
+
+.quote-modal-overlay {
+  z-index: 10000;
+}

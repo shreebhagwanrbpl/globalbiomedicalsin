@@ -1,5 +1,5 @@
 "use client";
-
+import toast, { Toaster } from "react-hot-toast";
 import "./contact.css";
 import { useState, useEffect } from "react";
 import { db } from "@/lib/firebase";
@@ -62,7 +62,7 @@ export default function Contact() {
 
     // validation
     if (!name || !email || !phone || !message) {
-      return alert("Please fill all required fields");
+ return toast.error("Fill all fields");
     }
 
     try {
@@ -74,7 +74,8 @@ export default function Contact() {
         }
       );
 
-      alert("Message Sent ✅");
+
+    toast.success("Message sent");
 
       // reset
       setForm({
@@ -87,13 +88,13 @@ export default function Contact() {
 
     } catch (err) {
       console.error(err);
-      alert("Error sending message");
+  toast.error("Failed to send");
     }
   };
 
   return (
     <div className="contact-page">
-
+            <Toaster position="top-right" />
       {/* HERO */}
       <section className="contact-hero text-center">
         <div className="container">
@@ -158,70 +159,67 @@ export default function Contact() {
               <div className="contact-form">
 
                 <div className="row g-3">
+                 <div className="col-md-6">
+  <input
+    type="text"
+    name="name"
+    placeholder="Your Name"
+    className="input-field"
+    value={form.name}
+    onChange={handleChange}
+  />
+</div>
 
-                  <div className="col-md-6">
-                    <input
-                      type="text"
-                      name="name"
-                      placeholder="Your Name"
-                      className="input-field"
-                      onChange={handleChange}
-                      value={form.name}
-                    />
-                  </div>
+<div className="col-md-6">
+  <input
+    type="email"
+    name="email"
+    placeholder="Email Address"
+    className="input-field"
+    value={form.email}
+    onChange={handleChange}
+  />
+</div>
 
-                  <div className="col-md-6">
-                    <input
-                      type="email"
-                      name="email"
-                      placeholder="Email Address"
-                      className="input-field"
-                      onChange={handleChange}
-                      value={form.email}
-                    />
-                  </div>
+<div className="col-md-6">
+  <input
+    type="text"
+    name="phone"
+    placeholder="Phone Number"
+    className="input-field"
+    value={form.phone}
+    onChange={handleChange}
+  />
+</div>
 
-                  <div className="col-md-6">
-                    <input
-                      type="text"
-                      name="phone"
-                      placeholder="Phone Number"
-                      className="input-field"
-                      onChange={handleChange}
-                      value={form.phone}
-                    />
-                  </div>
+<div className="col-md-6">
+  <input
+    type="text"
+    name="subject"
+    placeholder="Subject"
+    className="input-field"
+    value={form.subject}
+    onChange={handleChange}
+  />
+</div>
 
-                  <div className="col-md-6">
-                    <input
-                      type="text"
-                      name="subject"
-                      placeholder="Subject"
-                      className="input-field"
-                      onChange={handleChange}
-                      value={form.subject}
-                    />
-                  </div>
+<div className="col-12">
+  <textarea
+    name="message"
+    rows="4"
+    placeholder="Your Message"
+    value={form.message}
+    onChange={handleChange}
+  ></textarea>
+</div>
 
-                  <div className="col-12">
-                    <textarea
-                      name="message"
-                      rows="4"
-                      placeholder="Your Message"
-                      onChange={handleChange}
-                      value={form.message}
-                    />
-                  </div>
-
-                  <div className="col-12">
-                    <button
-                      className="btn submit-btn w-100"
-                      onClick={handleSubmit}
-                    >
-                      Send Message
-                    </button>
-                  </div>
-
+   <button
+  type="button"
+  className="btn submit-btn w-100"
+  onClick={handleSubmit}
+>
+  Send Message
+</button>
                 </div>
 
               </div>

@@ -1,5 +1,5 @@
 "use client";
-
+import toast, { Toaster } from "react-hot-toast";
 import { useState, useEffect } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
@@ -88,7 +88,7 @@ const handleSubmit = async () => {
       }
     );
 
-    alert("Quote Request Sent ✅");
+   toast.success("Quote Request Sent ");
 
     setForm({
       name: "",
@@ -100,12 +100,17 @@ const handleSubmit = async () => {
 
   } catch (err) {
     console.error(err);
-    alert("Error sending request");
+    toast.error("Error sending request");
   }
 };
   return (
     <div className="products-page">
-
+      <Toaster
+  position="top-right"
+  containerStyle={{
+    zIndex: 9999999,  // 🔥 VERY HIGH
+  }}
+/>
       {/* HEADER */}
       <div className="container-fluid px-5 py-5 text-center">
         <h1 className="fw-bold display-4">Our Products</h1>
