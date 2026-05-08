@@ -26,7 +26,7 @@ const [form, setForm] = useState({
   useEffect(() => {
     const fetchData = async () => {
       const snap = await getDoc(
-        doc(db, "websites", "globalbiomedicals", "pages", "products")
+        doc(db, "websites", "globalbiomedicalsin", "pages", "products")
       );
 
       if (snap.exists()) {
@@ -74,7 +74,7 @@ const handleSubmit = async () => {
 
   try {
     await addDoc(
-      collection(db, "websitesQueries", "globalbiomedicals", "productQueries"),
+      collection(db, "websitesQueries", "globalbiomedicalsin", "productQueries"),
       {
         name: form.name,
         email: form.email,
