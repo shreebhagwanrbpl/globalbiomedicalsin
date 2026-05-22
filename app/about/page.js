@@ -8,7 +8,7 @@ export default function About() {
       <section className="about-hero text-center">
         <div className="container">
           <h1 className="fw-bold display-4">
-            About <span>Raj Biosis</span>
+            About <span>Global Biomedicals</span>
           </h1>
           <p className="mt-3">
             Empowering healthcare with advanced diagnostic solutions
@@ -28,7 +28,7 @@ export default function About() {
               </h3>
 
               <p className="text-muted">
-                Raj Biosis has been providing high-quality diagnostic instruments,
+                Global Biomedicals has been providing high-quality diagnostic instruments,
                 lab equipment, and medical consumables across India.
               </p>
 

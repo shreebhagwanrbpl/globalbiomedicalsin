@@ -61,8 +61,8 @@ const district =
           className="navbar-brand"
         >
           <Image
-            src="/logo.png"
-            alt="Raj Biosis"
+            src="/globallogo.png"
+            alt="Global Biomedicals"
             width={140}
             height={50}
             style={{ objectFit: "contain" }}

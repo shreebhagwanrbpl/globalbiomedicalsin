@@ -16,7 +16,8 @@ import { usePathname } from "next/navigation";
 export default function Contact() {
 
   const [loading, setLoading] = useState(true);
-
+  const [stateName, setStateName] = useState("");
+const [validCity, setValidCity] = useState("");
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -69,7 +70,7 @@ const currentCity =
   pathParts[0] &&
   !reservedRoutes.includes(pathParts[0])
     ? pathParts[0]
-    : "jaipur";
+    : "";
 
 // format city
 
@@ -84,9 +85,62 @@ const formatCity = (name = "") =>
     )
     .join(" ");
 
-const citySlug = currentCity;
 
 const cityName = formatCity(currentCity);
+useEffect(() => {
+
+  const checkCity = async () => {
+
+    if (!currentCity) {
+
+      setValidCity("");
+      setStateName("");
+
+      return;
+    }
+
+    try {
+
+      const snap = await getDoc(
+        doc(
+          db,
+          "websites",
+          "globalbiomedicalorg",
+          "districts",
+          currentCity.toLowerCase()
+        )
+      );
+
+      if (snap.exists()) {
+
+        setValidCity(
+          formatCity(currentCity)
+        );
+
+        setStateName(
+          snap.data()?.state || ""
+        );
+
+      } else {
+
+        setValidCity("");
+        setStateName("");
+
+      }
+
+    } catch (err) {
+
+      console.log(err);
+
+      setValidCity("");
+      setStateName("");
+
+    }
+  };
+
+  checkCity();
+
+}, [currentCity]);
   // ✅ FIXED CHANGE HANDLER
   const handleChange = (e) => {
     setForm({
@@ -189,9 +243,11 @@ const cityName = formatCity(currentCity);
                      <p>
                           {
                             item.label.toLowerCase().includes("address")
-                              ? currentCity === "jaipur"
-                                ? "F-4, 1st Floor, Plot No. 16, D-Block Tagor Nagar, on Ajmer-Delhi, 200 Feet Bypass Rd, Jaipur, Rajasthan 302021"
-                                : `${cityName}, India`
+? validCity
+  ? stateName
+    ? `${validCity}, ${stateName}, India`
+    : `${validCity}, India`
+  : "Amrapali , Vaishali Nagar , Jaipur, India, 302021"
                               : item.value
                           }
                         </p>
@@ -283,7 +339,13 @@ const cityName = formatCity(currentCity);
       <section className="map-section">
         <div className="container-fluid p-0">
           <iframe
-            src={`https://maps.google.com/maps?q=${cityName},India&output=embed`}
+src={`https://maps.google.com/maps?q=${
+  validCity
+    ? stateName
+      ? `${validCity}, ${stateName}, India`
+      : `${validCity}, India`
+    : "Amrapali , Vaishali Nagar , Jaipur, India, 302021"
+}&output=embed`}
             width="100%"
             height="400"
             style={{ border: 0 }}

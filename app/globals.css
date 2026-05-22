@@ -11,9 +11,9 @@ html {
 }
 
 /* REMOVE BLUE LINKS */
-a {
-  color: #000 !important;
-}
+/* a {
+  color: #890909 !important;
+} */
 
 /* NAVBAR */
 .navbar {

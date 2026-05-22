@@ -5,49 +5,80 @@ import { usePathname } from "next/navigation";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
-
 export default function Services() {
   const [services, setServices] = useState([]);
-const pathname = usePathname();
+  const [validCity, setValidCity] = useState("");
 
+  const pathname = usePathname();
 
-const pathParts = pathname
-  .split("/")
-  .filter(Boolean);
+  const pathParts = pathname.split("/").filter(Boolean);
 
-const reservedRoutes = [
-  "about",
-  "contact",
-  "item",
-  "items",
-  "products",
-  "services",
-];
+  const reservedRoutes = [
+    "about",
+    "contact",
+    "item",
+    "items",
+    "products",
+    "services",
+  ];
 
-const currentCity =
-  typeof window !== "undefined"
-    ? pathParts[0] &&
-      !reservedRoutes.includes(pathParts[0])
-      ? pathParts[0]
-      : ""
-    : "";
+  const currentCity =
+    typeof window !== "undefined"
+      ? pathParts[0] &&
+        !reservedRoutes.includes(pathParts[0])
+        ? pathParts[0]
+        : ""
+      : "";
 
+  const formatCity = (name = "") =>
+    name
+      .split("-")
+      .map(
+        (w) =>
+          w.charAt(0).toUpperCase() + w.slice(1)
+      )
+      .join(" ");
 
-const formatCity = (name = "") =>
-  name
-    .split("-")
-    .map(
-      (w) =>
-        w.charAt(0).toUpperCase() + w.slice(1)
-    )
-    .join(" ");
+  // 🔥 CHECK VALID CITY
+  useEffect(() => {
+    const checkCity = async () => {
+      if (!currentCity) {
+        setValidCity("");
+        return;
+      }
 
-const citySlug = currentCity
-  ?.toLowerCase()
-  ?.replace(/\s+/g, "-");
+      try {
+const snap = await getDoc(
+  doc(
+    db,
+    "websites",
+    "globalbiomedicalorg",
+    "districts",
+    currentCity.toLowerCase()
+  )
+);
 
-const cityName = formatCity(currentCity);
-  // 🔥 FETCH DATA
+if (snap.exists()) {
+
+  setValidCity(
+    formatCity(currentCity)
+  );
+
+} else {
+
+  setValidCity("");
+
+}
+      } catch (err) {
+        console.error(err);
+        setValidCity("");
+      }
+    };
+
+    checkCity();
+  }, [currentCity]);
+
+  // 🔥 FETCH SERVICES
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -66,7 +97,7 @@ const cityName = formatCity(currentCity);
     fetchData();
   }, []);
 
-  // 🔥 FIXED ICON LIST (frontend controlled)
+  // 🔥 ICONS
   const icons = [
     "bi-heart-pulse-fill",
     "bi-capsule",
@@ -79,19 +110,22 @@ const cityName = formatCity(currentCity);
   return (
     <div className="services-page">
 
-      {/* 🔥 HERO */}
+      {/* HERO */}
       <section className="services-hero text-center">
         <div className="container">
           <h1 className="fw-bold display-4">
-           Our <span>Services</span>{cityName ? ` in ${cityName}` : ""}
+            Our <span>Services</span>
+            {validCity ? ` in ${validCity}` : ""}
           </h1>
+
           <p className="mt-3">
-          Comprehensive medical and diagnostic solutions for modern healthcare in {cityName}
+            Comprehensive medical and diagnostic solutions
+            {validCity ? ` in ${validCity}` : ""}
           </p>
         </div>
       </section>
 
-      {/* 🔥 SERVICES */}
+      {/* SERVICES */}
       <section className="py-5">
         <div className="container">
           <div className="row g-4">
@@ -103,10 +137,8 @@ const cityName = formatCity(currentCity);
                 <div className="col-md-4" key={i}>
                   <div className="service-card">
 
-                    {/* ICON */}
                     <i className={`bi ${icons[i % icons.length]}`}></i>
 
-                    {/* DATA */}
                     <h5>{item.title || "Service Title"}</h5>
                     <p>{item.desc || "Service Description"}</p>
 
@@ -119,14 +151,16 @@ const cityName = formatCity(currentCity);
         </div>
       </section>
 
-      {/* 🔥 CTA */}
+      {/* CTA */}
       <section className="cta text-center">
         <div className="container">
           <h2>Need Medical Solutions?</h2>
-         <p>
-  Contact us today for best diagnostic equipment
-  {cityName && ` in ${cityName}`}
-</p>
+
+          <p>
+            Contact us today for best diagnostic equipment
+            {validCity ? ` in ${validCity}` : ""}
+          </p>
+
           <button className="btn btn-light px-4 mt-2">
             Get in Touch
           </button>

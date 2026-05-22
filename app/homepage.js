@@ -202,7 +202,7 @@ useEffect(() => {
           {/* LEFT */}
           <div className="col-lg-6" data-aos="fade-right">
             <h2 className="fw-bold mb-4 display-5">
-              Why Choose <span className="text-success">Raj Biosis?</span>
+              Why Choose <span className="text-success">Global Biomedicals?</span>
             </h2>
 
             <p className="fs-5">

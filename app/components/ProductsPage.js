@@ -13,7 +13,7 @@ export default function Products({ city }) {
   const [products, setProducts] = useState([]);
   const [quoteModal, setQuoteModal] = useState(false);
   const pathname = usePathname();
- 
+  const [validCity, setValidCity] = useState("");
 // current city
 const pathParts = pathname
   .split("/")
@@ -48,7 +48,46 @@ const citySlug = currentCity
 const cityName = currentCity
   ? formatCity(currentCity)
   : "";
+useEffect(() => {
+  const checkCity = async () => {
 
+    if (!currentCity) {
+      setValidCity("");
+      return;
+    }
+
+    try {
+const snap = await getDoc(
+  doc(
+    db,
+    "websites",
+    "globalbiomedicalorg",
+    "districts",
+    currentCity.toLowerCase()
+  )
+);
+
+if (snap.exists()) {
+
+  setValidCity(
+    formatCity(currentCity)
+  );
+
+} else {
+
+  setValidCity("");
+
+}
+
+    } catch (err) {
+      console.error(err);
+      setValidCity("");
+    }
+  };
+
+  checkCity();
+
+}, [currentCity]);
 const [form, setForm] = useState({
   name: "",
   email: "",
@@ -277,7 +316,7 @@ useEffect(() => {
 
     // TITLE
     document.title = currentCity
-      ? `${selectedProduct.title} in ${currentCity}`
+      ? `${selectedProduct.title} in ${validCity}`
       : selectedProduct.title;
 
     // KEYWORDS META
@@ -323,7 +362,7 @@ useEffect(() => {
       selectedProduct.desc ||
       `${selectedProduct.title} available ${
         currentCity
-          ? `in ${currentCity}`
+          ? `in ${validCity}`
           : "in India"
       }`;
 
@@ -344,7 +383,7 @@ useEffect(() => {
       {/* HEADER */}
       <div className="container-fluid px-5 py-5 text-center">
        <h1 className="fw-bold display-4">
-  Our Products {cityName && `in ${cityName}`}
+  Our Products {validCity && `in ${validCity}`}
 </h1>
 
         <input
@@ -400,8 +439,8 @@ useEffect(() => {
             .replace(/\s+/g, "-");
 
         const url = districtSlug
-            ? `/${districtSlug}/products/${productSlug}`
-            : `/products/${productSlug}`;
+            ? `/${districtSlug}/products`
+            : `/products`;
 
         window.history.pushState({}, "", url);
 
@@ -547,11 +586,17 @@ useEffect(() => {
       Get Quote
     </button>
 
-    <Link href={`/${citySlug}/contact`}>
-      <button className="btn btn-outline-dark w-100">
-        Enquiry
-      </button>
-    </Link>
+<Link
+  href={
+    citySlug
+      ? `/${citySlug}/contact`
+      : `/contact`
+  }
+>
+  <button className="btn btn-outline-dark w-100">
+    Enquiry
+  </button>
+</Link>
 
   </div>
 

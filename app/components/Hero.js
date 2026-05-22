@@ -7,10 +7,10 @@ import Link from "next/link";
 
 export default function Hero({city}) {
    const [data, setData] = useState({
-  title: "Advanced Diagnostic Solutions",
-  description: "Delivering high-quality medical equipment & consumables for hospitals, labs & healthcare professionals.",
-  button1Text: "Explore Services",
-  button2Text: "Contact Us",
+  // title: "Advanced Diagnostic Solutions",
+  // description: "Delivering high-quality medical equipment & consumables for hospitals, labs & healthcare professionals.",
+  // button1Text: "Explore Services",
+  // button2Text: "Contact Us",
 });
 const currentCity = city || "";
 
@@ -26,7 +26,10 @@ const formatCity = (name = "") =>
 
 const citySlug = currentCity;
 
-const cityName = formatCity(currentCity);
+const cityName =
+  typeof window === "undefined"
+    ? formatCity(city)
+    : formatCity(currentCity);
   useEffect(() => {
     const fetchData = async () => {
       const snap = await getDoc(
@@ -52,13 +55,15 @@ const cityName = formatCity(currentCity);
               Trusted Since 2009
             </span>
 
-            <h1 className="fw-bold display-4">
-              {data?.title} {cityName && `in ${cityName}`}
-            </h1>
+   <h1 className="fw-bold display-4">
+  {data?.title}
+  {city ? ` in ${formatCity(city)}` : ""}
+</h1>
 
-            <p className="mt-3 text-light">
-              {data?.description} {cityName && `available in ${cityName}`}
-            </p>
+     <p className="mt-3 text-light">
+  {data?.description}
+  {city ? ` available in ${formatCity(city)}` : ""}
+</p>
 
             <div className="mt-4 d-flex gap-3">
               <Link
