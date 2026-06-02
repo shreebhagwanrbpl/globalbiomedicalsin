@@ -10,6 +10,9 @@ import Footer from "./components/Footer";
 export const metadata = {
   title: "Global Biomedical - Clinical Instruments",
   description: "Trusted partner for diagnostic & medical solutions.",
+    icons: {
+    icon: "/favicon.png",
+  },
 };
 
 export default function RootLayout({ children }) {
