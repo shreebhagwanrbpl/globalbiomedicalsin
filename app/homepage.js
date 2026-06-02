@@ -67,7 +67,7 @@ export default function Home({ city }) {
       <Hero city={city} />
       {/* SERVICES */}
       <section className="py-5 bg-light">
-        <div className="container-fluid px-5 text-center">
+        <div className="container text-center">
           <h2 className="fw-bold mb-5">Our Core Services</h2>
 
           <div className="row g-4">
@@ -75,7 +75,7 @@ export default function Home({ city }) {
               <p>No Services Found</p>
             ) : (
               services.map((item, i) => (
-                <div className="col-md-4" key={i}>
+                <div className="col-12 col-sm-6 col-md-4" key={i}>
                   <div className="p-4 rounded-4 service-card h-100">
 
                     {/* ICON */}
@@ -97,14 +97,14 @@ export default function Home({ city }) {
 
       {/* PRODUCTS */}
       <section className="py-5 bg-white">
-        <div className="container-fluid px-5 text-center">
+        <div className="container text-center">
 
           <h2 className="section-title">Our Products</h2>
 
           <div className="row g-4">
 
             {products.slice(0, 4).map((item, i) => (
-              <div className="col-md-3" key={item.id || i}>
+              <div className="col-12 col-sm-6 col-md-3" key={item.id || i}>
 
                 <div className="product-card-pro">
 
@@ -199,7 +199,7 @@ export default function Home({ city }) {
 </section> */}
 
       <section className="py-5 why-section">
-        <div className="container-fluid px-5">
+        <div className="container-fluid px-md-5 px-3 text-center">
           <div className="row align-items-center gy-5">
             {/* LEFT */}
             <div className="col-lg-6" data-aos="fade-right">
@@ -261,7 +261,7 @@ export default function Home({ city }) {
       </section>
 
       <section className="py-5 bg-light">
-        <div className="container-fluid px-5 text-center">
+        <div className="container text-center">
           <h2 className="fw-bold mb-4">Our Trusted Partners</h2>
 
           <div className="partner-slider">
