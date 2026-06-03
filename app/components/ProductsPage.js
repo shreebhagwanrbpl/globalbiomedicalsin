@@ -155,8 +155,6 @@ export default function Products({ city }) {
           name: form.name,
           email: form.email,
           phone: form.phone,
-
-          // 🔥 AUTO MESSAGE GENERATE
           message: `Enquiry for product: ${selectedProduct?.title || ""}`,
 
           productName: selectedProduct?.title || "",
@@ -576,8 +574,7 @@ export default function Products({ city }) {
                 </div>
 
                 {/* 🔥 BUTTONS */}
-                <div className="mt-4 d-flex gap-2">
-
+                <div className="mt-4 d-flex gap-2 flex-column flex-md-row">
                   <button
                     className="btn btn-success w-100"
                     onClick={() => setQuoteModal(true)}
