@@ -17,7 +17,7 @@ export default function Contact() {
 
   const [loading, setLoading] = useState(true);
   const [stateName, setStateName] = useState("");
-const [validCity, setValidCity] = useState("");
+  const [validCity, setValidCity] = useState("");
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -50,97 +50,97 @@ const [validCity, setValidCity] = useState("");
 
     load();
   }, []);
-// current city
-const pathname = usePathname();
+  // current city
+  const pathname = usePathname();
 
-const pathParts = pathname
-  .split("/")
-  .filter(Boolean);
+  const pathParts = pathname
+    .split("/")
+    .filter(Boolean);
 
-const reservedRoutes = [
-  "about",
-  "contact",
-  "item",
-  "items",
-  "products",
-  "services",
-];
+  const reservedRoutes = [
+    "about",
+    "contact",
+    "item",
+    "items",
+    "products",
+    "services",
+  ];
 
-const currentCity =
-  pathParts[0] &&
-  !reservedRoutes.includes(pathParts[0])
-    ? pathParts[0]
-    : "";
+  const currentCity =
+    pathParts[0] &&
+      !reservedRoutes.includes(pathParts[0])
+      ? pathParts[0]
+      : "";
 
-// format city
-
-
-// format cityx`
-const formatCity = (name = "") =>
-  name
-    .split("-")
-    .map(
-      (w) =>
-        w.charAt(0).toUpperCase() + w.slice(1)
-    )
-    .join(" ");
+  // format city
 
 
-const cityName = formatCity(currentCity);
-useEffect(() => {
+  // format cityx`
+  const formatCity = (name = "") =>
+    name
+      .split("-")
+      .map(
+        (w) =>
+          w.charAt(0).toUpperCase() + w.slice(1)
+      )
+      .join(" ");
 
-  const checkCity = async () => {
 
-    if (!currentCity) {
+  const cityName = formatCity(currentCity);
+  useEffect(() => {
 
-      setValidCity("");
-      setStateName("");
+    const checkCity = async () => {
 
-      return;
-    }
+      if (!currentCity) {
 
-    try {
+        setValidCity("");
+        setStateName("");
 
-      const snap = await getDoc(
-        doc(
-          db,
-          "websites",
-          "globalbiomedicalorg",
-          "districts",
-          currentCity.toLowerCase()
-        )
-      );
+        return;
+      }
 
-      if (snap.exists()) {
+      try {
 
-        setValidCity(
-          formatCity(currentCity)
+        const snap = await getDoc(
+          doc(
+            db,
+            "websites",
+            "globalbiomedicalorg",
+            "districts",
+            currentCity.toLowerCase()
+          )
         );
 
-        setStateName(
-          snap.data()?.state || ""
-        );
+        if (snap.exists()) {
 
-      } else {
+          setValidCity(
+            formatCity(currentCity)
+          );
+
+          setStateName(
+            snap.data()?.state || ""
+          );
+
+        } else {
+
+          setValidCity("");
+          setStateName("");
+
+        }
+
+      } catch (err) {
+
+        console.log(err);
 
         setValidCity("");
         setStateName("");
 
       }
+    };
 
-    } catch (err) {
+    checkCity();
 
-      console.log(err);
-
-      setValidCity("");
-      setStateName("");
-
-    }
-  };
-
-  checkCity();
-
-}, [currentCity]);
+  }, [currentCity]);
   // ✅ FIXED CHANGE HANDLER
   const handleChange = (e) => {
     setForm({
@@ -155,7 +155,7 @@ useEffect(() => {
 
     // validation
     if (!name || !email || !phone || !message) {
- return toast.error("Fill all fields");
+      return toast.error("Fill all fields");
     }
 
     try {
@@ -168,7 +168,7 @@ useEffect(() => {
       );
 
 
-    toast.success("Message sent");
+      toast.success("Message sent");
 
       // reset
       setForm({
@@ -181,17 +181,17 @@ useEffect(() => {
 
     } catch (err) {
       console.error(err);
-  toast.error("Failed to send");
+      toast.error("Failed to send");
     }
   };
 
 
 
-  
+
 
   return (
     <div className="contact-page">
-            <Toaster position="top-right" />
+      <Toaster position="top-right" />
       {/* HERO */}
       <section className="contact-hero text-center">
         <div className="container">
@@ -232,22 +232,22 @@ useEffect(() => {
                         item.label.toLowerCase().includes("address")
                           ? "bi bi-geo-alt"
                           : item.label.toLowerCase().includes("email")
-                          ? "bi bi-envelope"
-                          : item.label.toLowerCase().includes("phone")
-                          ? "bi bi-telephone"
-                          : "bi bi-info-circle"
+                            ? "bi bi-envelope"
+                            : item.label.toLowerCase().includes("phone")
+                              ? "bi bi-telephone"
+                              : "bi bi-info-circle"
                       }></i>
 
                       <div>
                         <strong>{item.label}</strong>
-                     <p>
+                        <p>
                           {
                             item.label.toLowerCase().includes("address")
-? validCity
-  ? stateName
-    ? `${validCity}, ${stateName}, India`
-    : `${validCity}, India`
-  : "Amrapali , Vaishali Nagar , Jaipur, India, 302021"
+                              ? validCity && validCity.toLowerCase() !== "jaipur"
+                                ? stateName
+                                  ? `${validCity}, ${stateName}, India`
+                                  : `${validCity}, India`
+                                : item.value
                               : item.value
                           }
                         </p>
@@ -264,67 +264,67 @@ useEffect(() => {
             <div className="col-lg-7">
               <div className="contact-form">
                 <div className="row g-3">
-                 <div className="col-md-6">
-                <input
-                  type="text"
-                  name="name"
-                  placeholder="Your Name"
-                  className="input-field"
-                  value={form.name}
-                  onChange={handleChange}
-                />
-              </div>
+                  <div className="col-md-6">
+                    <input
+                      type="text"
+                      name="name"
+                      placeholder="Your Name"
+                      className="input-field"
+                      value={form.name}
+                      onChange={handleChange}
+                    />
+                  </div>
 
-              <div className="col-md-6">
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="Email Address"
-                  className="input-field"
-                  value={form.email}
-                  onChange={handleChange}
-                />
-              </div>
+                  <div className="col-md-6">
+                    <input
+                      type="email"
+                      name="email"
+                      placeholder="Email Address"
+                      className="input-field"
+                      value={form.email}
+                      onChange={handleChange}
+                    />
+                  </div>
 
-              <div className="col-md-6">
-                <input
-                  type="text"
-                  name="phone"
-                  placeholder="Phone Number"
-                  className="input-field"
-                  value={form.phone}
-                  onChange={handleChange}
-                />
-              </div>
+                  <div className="col-md-6">
+                    <input
+                      type="text"
+                      name="phone"
+                      placeholder="Phone Number"
+                      className="input-field"
+                      value={form.phone}
+                      onChange={handleChange}
+                    />
+                  </div>
 
-              <div className="col-md-6">
-                <input
-                  type="text"
-                  name="subject"
-                  placeholder="Subject"
-                  className="input-field"
-                  value={form.subject}
-                  onChange={handleChange}
-                />
-              </div>
+                  <div className="col-md-6">
+                    <input
+                      type="text"
+                      name="subject"
+                      placeholder="Subject"
+                      className="input-field"
+                      value={form.subject}
+                      onChange={handleChange}
+                    />
+                  </div>
 
-              <div className="col-12">
-                <textarea
-                  name="message"
-                  rows="4"
-                  placeholder="Your Message"
-                  value={form.message}
-                  onChange={handleChange}
-                ></textarea>
-              </div>
+                  <div className="col-12">
+                    <textarea
+                      name="message"
+                      rows="4"
+                      placeholder="Your Message"
+                      value={form.message}
+                      onChange={handleChange}
+                    ></textarea>
+                  </div>
 
-                <button
-                type="button"
-                className="btn submit-btn w-100"
-                onClick={handleSubmit}
-              >
-                Send Message
-              </button>
+                  <button
+                    type="button"
+                    className="btn submit-btn w-100"
+                    onClick={handleSubmit}
+                  >
+                    Send Message
+                  </button>
                 </div>
 
               </div>
@@ -339,13 +339,12 @@ useEffect(() => {
       <section className="map-section">
         <div className="container-fluid p-0">
           <iframe
-src={`https://maps.google.com/maps?q=${
-  validCity
-    ? stateName
-      ? `${validCity}, ${stateName}, India`
-      : `${validCity}, India`
-    : "Amrapali , Vaishali Nagar , Jaipur, India, 302021"
-}&output=embed`}
+            src={`https://maps.google.com/maps?q=${validCity
+              ? stateName
+                ? `${validCity}, ${stateName}, India`
+                : `${validCity}, India`
+              : "Amrapali , Vaishali Nagar , Jaipur, India, 302021"
+              }&output=embed`}
             width="100%"
             height="400"
             style={{ border: 0 }}

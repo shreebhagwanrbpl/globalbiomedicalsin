@@ -82,25 +82,29 @@ export default function Footer() {
 
 
   useEffect(() => {
-
     const fetchContact = async () => {
-
       try {
+        const snap = await getDoc(
+          doc(
+            db,
+            "websites",
+            "globalbiomedicalsin",
+            "pages",
+            "contact"
+          )
+        );
 
-        const res = await fetch("/contact.json");
-
-        const data = await res.json();
-
-        setContactInfo(data || []);
-
+        if (snap.exists()) {
+          setContactInfo(
+            snap.data().contactInfo || []
+          );
+        }
       } catch (err) {
         console.log(err);
       }
-
     };
 
     fetchContact();
-
   }, []);
   useEffect(() => {
 
@@ -218,22 +222,23 @@ export default function Footer() {
             </h6>
 
             <p className="small mb-2">
-              <i className="bi bi-geo-alt">  </i>
+              <i className="bi bi-geo-alt"> </i>
 
               {validCity
                 ? stateName
                   ? `${city}, ${stateName}, India`
                   : `${city}, India`
-                : "Amrapali , Vaishali Nagar , Jaipur, India, 302021"}
+                : getValue("address")}
             </p>
+
             <p className="small mb-1">
-              <i className="bi bi-envelope">  </i>
-              info@rajbiosis.com
+              <i className="bi bi-envelope"> </i>
+              {getValue("email")}
             </p>
 
             <p className="small">
-              <i className="bi bi-telephone">  </i>
-              +91 XXXXX XXXXX
+              <i className="bi bi-telephone"> </i>
+              {getValue("phone")}
             </p>
             {/* MAP */}
             <iframe
