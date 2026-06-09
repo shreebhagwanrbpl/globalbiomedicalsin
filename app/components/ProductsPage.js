@@ -296,76 +296,262 @@ export default function Products({ city }) {
     return Array.from(keywords).slice(0, 35);
   };
 
+  // useEffect(() => {
+  //   if (selectedProduct?.title) {
+  //     const keywords = generateKeywords(
+  //       selectedProduct.title,
+  //       currentCity
+  //     );
+  //     // 🔥 CONSOLE ME DIKHANE KE LIYE
+  //     console.log(
+  //       "SEO KEYWORDS 👉",
+  //       `(${keywords.length})`,
+  //       keywords
+  //     );
+  //     // TITLE
+  //     document.title = currentCity
+  //       ? `${selectedProduct.title} in ${validCity}`
+  //       : selectedProduct.title;
+  //     // KEYWORDS META
+  //     let metaKeywords = document.querySelector(
+  //       'meta[name="keywords"]'
+  //     );
+  //     if (!metaKeywords) {
+  //       metaKeywords =
+  //         document.createElement("meta");
+  //       metaKeywords.name = "keywords";
+  //       document.head.appendChild(
+  //         metaKeywords
+  //       );
+  //     }
+  //     metaKeywords.content =
+  //       keywords.join(", ");
+  //     // DESCRIPTION
+  //     let metaDescription =
+  //       document.querySelector(
+  //         'meta[name="description"]'
+  //       );
+  //     if (!metaDescription) {
+  //       metaDescription =
+  //         document.createElement("meta");
+  //       metaDescription.name =
+  //         "description";
+  //       document.head.appendChild(
+  //         metaDescription
+  //       );
+  //     }
+  //     metaDescription.content =
+  //       selectedProduct.desc ||
+  //       `${selectedProduct.title} available ${currentCity
+  //         ? `in ${validCity}`
+  //         : "in India"
+  //       }`;
+  //   }
+  // }, [selectedProduct, currentCity]);
+
   useEffect(() => {
 
-    if (selectedProduct?.title) {
+  const product = selectedProduct;
 
-      const keywords = generateKeywords(
-        selectedProduct.title,
+  const pageTitle = product?.title
+    ? `${product.title} Supplier ${
+        validCity ? `in ${validCity}` : "in India"
+      } | Global Biomedical`
+    : `Laboratory Equipment Supplier ${
+        validCity ? `in ${validCity}` : "in India"
+      }`;
+
+  const description = product?.desc
+    ? product.desc
+    : `Buy high quality ${
+        product?.title || "laboratory equipment"
+      } ${
+        validCity ? `in ${validCity}` : "in India"
+      }. Trusted supplier of lab equipment, pathology machines and biomedical products.`;
+
+  const keywords = product?.title
+    ? generateKeywords(
+        product.title,
         currentCity
+      )
+    : [
+        "laboratory equipment supplier india",
+        "pathology equipment",
+        "diagnostic instruments",
+        "biomedical products",
+        "lab equipment supplier",
+      ];
+
+  // TITLE
+  document.title = pageTitle;
+
+  const updateMeta = (
+    name,
+    content
+  ) => {
+    let meta =
+      document.querySelector(
+        `meta[name="${name}"]`
       );
 
-      // 🔥 CONSOLE ME DIKHANE KE LIYE
-      console.log(
-        "SEO KEYWORDS 👉",
-        `(${keywords.length})`,
-        keywords
-      );
-
-      // TITLE
-      document.title = currentCity
-        ? `${selectedProduct.title} in ${validCity}`
-        : selectedProduct.title;
-
-      // KEYWORDS META
-      let metaKeywords = document.querySelector(
-        'meta[name="keywords"]'
-      );
-
-      if (!metaKeywords) {
-
-        metaKeywords =
-          document.createElement("meta");
-
-        metaKeywords.name = "keywords";
-
-        document.head.appendChild(
-          metaKeywords
-        );
-      }
-
-      metaKeywords.content =
-        keywords.join(", ");
-
-      // DESCRIPTION
-      let metaDescription =
-        document.querySelector(
-          'meta[name="description"]'
-        );
-
-      if (!metaDescription) {
-
-        metaDescription =
-          document.createElement("meta");
-
-        metaDescription.name =
-          "description";
-
-        document.head.appendChild(
-          metaDescription
-        );
-      }
-
-      metaDescription.content =
-        selectedProduct.desc ||
-        `${selectedProduct.title} available ${currentCity
-          ? `in ${validCity}`
-          : "in India"
-        }`;
-
+    if (!meta) {
+      meta =
+        document.createElement("meta");
+      meta.name = name;
+      document.head.appendChild(meta);
     }
 
-  }, [selectedProduct, currentCity]);
+    meta.content = content;
+  };
+
+  // BASIC SEO
+  updateMeta(
+    "description",
+    description
+  );
+
+  updateMeta(
+    "keywords",
+    keywords.join(", ")
+  );
+
+  // ROBOTS
+  updateMeta(
+    "robots",
+    "index, follow, max-image-preview:large"
+  );
+
+  // AUTHOR
+  updateMeta(
+    "author",
+    "Global Biomedical"
+  );
+
+  // OG TAGS
+  const updatePropertyMeta = (
+    property,
+    content
+  ) => {
+    let meta =
+      document.querySelector(
+        `meta[property="${property}"]`
+      );
+
+    if (!meta) {
+      meta =
+        document.createElement("meta");
+
+      meta.setAttribute(
+        "property",
+        property
+      );
+
+      document.head.appendChild(meta);
+    }
+
+    meta.content = content;
+  };
+
+  updatePropertyMeta(
+    "og:title",
+    pageTitle
+  );
+
+  updatePropertyMeta(
+    "og:description",
+    description
+  );
+
+  updatePropertyMeta(
+    "og:type",
+    "website"
+  );
+
+  updatePropertyMeta(
+    "og:image",
+    product?.image ||
+      "/logo.png"
+  );
+
+  updatePropertyMeta(
+    "og:url",
+    window.location.href
+  );
+
+  // CANONICAL
+  let canonical =
+    document.querySelector(
+      'link[rel="canonical"]'
+    );
+
+  if (!canonical) {
+    canonical =
+      document.createElement("link");
+    canonical.rel =
+      "canonical";
+
+    document.head.appendChild(
+      canonical
+    );
+  }
+
+  canonical.href =
+    window.location.href;
+
+  // JSON LD SCHEMA
+  const schema = {
+    "@context":
+      "https://schema.org",
+    "@type": "Product",
+    name:
+      product?.title ||
+      "Laboratory Equipment",
+
+    image:
+      product?.image || "",
+
+    description,
+
+    brand: {
+      "@type": "Brand",
+      name:
+        "Global Biomedical",
+    },
+
+    category:
+      "Laboratory Equipment",
+  };
+
+  let script =
+    document.getElementById(
+      "seo-schema"
+    );
+
+  if (!script) {
+    script =
+      document.createElement(
+        "script"
+      );
+
+    script.type =
+      "application/ld+json";
+
+    script.id =
+      "seo-schema";
+
+    document.head.appendChild(
+      script
+    );
+  }
+
+  script.innerHTML =
+    JSON.stringify(schema);
+
+}, [
+  selectedProduct,
+  currentCity,
+  validCity
+]);
 
 
 

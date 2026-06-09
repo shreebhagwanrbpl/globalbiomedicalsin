@@ -4,6 +4,62 @@ import { useEffect, useState } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import Link from "next/link";
+
+
+
+export const metadata = {
+  title:
+    "Laboratory Equipment Supplier in India | Global Biomedicals",
+
+  description:
+    "Global Biomedicals is a trusted laboratory equipment supplier in India providing pathology machines, biomedical products, diagnostic instruments and hospital lab equipment.",
+
+  keywords: [
+    "laboratory equipment supplier india",
+    "pathology equipment supplier",
+    "diagnostic instruments supplier",
+    "biomedical products india",
+    "hospital equipment supplier",
+    "medical lab equipment india",
+    "laboratory products supplier",
+  ],
+
+  robots: {
+    index: true,
+    follow: true,
+  },
+
+  alternates: {
+    canonical:
+      "https://globalbiomedicalsin.com",
+  },
+
+  openGraph: {
+    title:
+      "Laboratory Equipment Supplier in India",
+    description:
+      "Trusted supplier of biomedical products and pathology machines across India.",
+
+    url:
+      "https://globalbiomedicalsin.com",
+
+    siteName:
+      "Global Biomedicals",
+
+    images: [
+      {
+        url:
+          "https://globalbiomedicalsin.com/globallogo.png",
+        width: 1200,
+        height: 630,
+      },
+    ],
+
+    locale: "en_IN",
+    type: "website",
+  },
+};
+
 export default function Home({ city }) {
   const [services, setServices] = useState([]);
   const [products, setProducts] = useState([]);
@@ -68,7 +124,10 @@ export default function Home({ city }) {
       {/* SERVICES */}
       <section className="py-5 bg-light">
         <div className="container text-center">
-          <h2 className="fw-bold mb-5">Our Core Services</h2>
+          <h2 className="fw-bold mb-5">
+              Laboratory Equipment &
+              Diagnostic Services
+            </h2>
 
           <div className="row g-4">
             {services.length === 0 ? (
@@ -99,7 +158,10 @@ export default function Home({ city }) {
       <section className="py-5 bg-white">
         <div className="container text-center">
 
-          <h2 className="section-title">Our Products</h2>
+          <h2 className="section-title">
+            Laboratory Equipment &
+            Biomedical Products
+          </h2>
 
           <div className="row g-4">
 
@@ -109,7 +171,12 @@ export default function Home({ city }) {
                 <div className="product-card-pro">
 
                   <div className="product-img-pro">
-                    <img src={item.image || "/no-image.png"} />
+                    <img 
+                    src={item.image 
+                    || 
+                    "/no-image.png"}
+                      loading="lazy"
+                    />
                   </div>
 
                   <div className="product-body text-start">
@@ -141,6 +208,24 @@ export default function Home({ city }) {
 
         </div>
       </section>
+
+      <div className="d-none">
+  <h2>
+    Laboratory Equipment Supplier
+    in India
+  </h2>
+
+  <p>
+    Global Biomedicals is a trusted
+    supplier of laboratory
+    equipment, diagnostic
+    instruments, biomedical
+    products, pathology machines,
+    laboratory consumables and
+    hospital equipment across
+    India.
+  </p>
+</div>
 
 
       {/* WHY CHOOSE US */}

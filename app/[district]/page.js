@@ -1,15 +1,13 @@
 "use client";
 
 import { use, useEffect, useState } from "react";
-
 import Home from "../homepage";
-
 import { db } from "@/lib/firebase";
-
 import { doc, getDoc } from "firebase/firestore";
 
-export default function Page({ params }) {
 
+
+export default function Page({ params }) {
   // ✅ unwrap params Promise
   const resolvedParams = use(params);
 

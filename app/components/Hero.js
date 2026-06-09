@@ -76,10 +76,14 @@ export default function Hero({ city }) {
               Trusted Since 2009
             </span>
 
-            <h1 className="fw-bold display-4">
-              {data?.title}
-              {city ? ` in ${formatCity(city)}` : ""}
-            </h1>
+           <h1 className="fw-bold display-4">
+            {data?.title ||
+              "Laboratory Equipment Supplier"}
+
+            {city
+              ? ` in ${formatCity(city)}`
+              : " in India"}
+          </h1>
 
             <p className="mt-3 text-light">
               {data?.description}
@@ -112,7 +116,7 @@ export default function Hero({ city }) {
             <img
               src="https://images.unsplash.com/photo-1579154204601-01588f351e67"
               className="img-fluid rounded-4 shadow-lg"
-              alt="medical lab"
+              alt="Laboratory Equipment Supplier India"
             />
           </div>
         </div>
