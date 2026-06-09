@@ -151,13 +151,33 @@ export default function Contact() {
 
   // 🔥 SUBMIT
   const handleSubmit = async () => {
-    const { name, email, phone, message } = form;
 
     // validation
-    if (!name || !email || !phone || !message) {
+    const { name, email, phone, message } = form;
+
+    if (
+      !name.trim() ||
+      !email.trim() ||
+      !phone.trim() ||
+      !message.trim()
+    ) {
       return toast.error("Fill all fields");
     }
+    const phoneRegex = /^[6-9]\d{9}$/;
 
+    if (!phoneRegex.test(phone)) {
+      return toast.error(
+        "Please enter a valid 10 digit mobile number"
+      );
+    }
+    const emailRegex =
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(email)) {
+      return toast.error(
+        "Please enter a valid email address"
+      );
+    }
     try {
       await addDoc(
         collection(db, "websitesQueries", "globalbiomedicalsin", "contactQueries"),
@@ -288,22 +308,27 @@ export default function Contact() {
 
                   <div className="col-md-6">
                     <input
-                      type="text"
+                      type="tel"
                       name="phone"
-                      placeholder="Phone Number"
+                      maxLength={10}
                       className="input-field"
                       value={form.phone}
-                      onChange={handleChange}
+                      onChange={(e) =>
+                        setForm({
+                          ...form,
+                          phone: e.target.value.replace(/\D/g, "")
+                        })
+                      }
                     />
                   </div>
 
                   <div className="col-md-6">
-                    <input
-                      type="text"
-                      name="subject"
-                      placeholder="Subject"
+                    <textarea
+                      name="message"
+                      rows="4"
                       className="input-field"
-                      value={form.subject}
+                      placeholder="Your Message"
+                      value={form.message}
                       onChange={handleChange}
                     />
                   </div>
