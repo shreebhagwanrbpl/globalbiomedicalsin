@@ -21,7 +21,7 @@ export default function Products({ city }) {
   const router = useRouter();
 
   const pathname = usePathname();
-
+  const [showTopBtn, setShowTopBtn] = useState(false);
   const [search, setSearch] = useState("");
   const [categorySearch, setCategorySearch] = useState("");
   const [products, setProducts] = useState([]);
@@ -558,7 +558,27 @@ export default function Products({ city }) {
 
   ]);
 
+  useEffect(() => {
 
+    const handleScroll = () => {
+
+      if (window.scrollY > 400) {
+        setShowTopBtn(true);
+      } else {
+        setShowTopBtn(false);
+      }
+
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    return () =>
+      window.removeEventListener(
+        "scroll",
+        handleScroll
+      );
+
+  }, []);
 
   /* -----------------------------
       VIEW DETAILS
@@ -609,7 +629,14 @@ export default function Products({ city }) {
     }
 
   };
+  const scrollToTop = () => {
 
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+
+  };
   return (
 
     <>
@@ -904,7 +931,7 @@ export default function Products({ city }) {
 
                     >
 
-                      <div className="section-title">
+                      <div className="section-titlee">
 
                         <h3>
 
@@ -1273,7 +1300,16 @@ export default function Products({ city }) {
         </div>
 
       </section>
+      {showTopBtn && (
 
+        <button
+          className="back-to-top-btn"
+          onClick={scrollToTop}
+        >
+          ↑
+        </button>
+
+      )}
     </>
 
   );

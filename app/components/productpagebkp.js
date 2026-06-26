@@ -13,7 +13,7 @@ export default function Products({ city }) {
   const [validCity, setValidCity] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(25);
-
+  const [showTopBtn, setShowTopBtn] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
 
