@@ -1,7 +1,12 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { doc, getDoc } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  getDocs,
+  collection
+} from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import "@/app/components/product.css";
 import { usePathname, useRouter } from "next/navigation";
@@ -18,7 +23,7 @@ export default function Products({ city }) {
   const pathname = usePathname();
 
   const [search, setSearch] = useState("");
-
+  const [categorySearch, setCategorySearch] = useState("");
   const [products, setProducts] = useState([]);
 
   const [validCity, setValidCity] = useState("");
@@ -30,7 +35,7 @@ export default function Products({ city }) {
   const [openedCategory, setOpenedCategory] = useState("");
 
   const [activeCategory, setActiveCategory] = useState("");
-
+  const [allCategories, setAllCategories] = useState([]);
 
 
   /* -----------------------------
@@ -50,7 +55,7 @@ export default function Products({ city }) {
 
   const currentCity =
     pathParts[0] &&
-    !reservedRoutes.includes(pathParts[0])
+      !reservedRoutes.includes(pathParts[0])
       ? pathParts[0]
       : null;
 
@@ -130,48 +135,6 @@ export default function Products({ city }) {
 
 
 
-  /* -----------------------------
-      CATEGORY
-  ------------------------------ */
-
-  const getCategory = (item) => {
-
-    const title =
-      (item.title || "").toLowerCase();
-
-    if (
-      title.includes("rapid")
-    )
-      return "Rapid Test Kits";
-
-    if (
-      title.includes("elisa")
-    )
-      return "ELISA Kits";
-
-    if (
-      title.includes("hematology")
-    )
-      return "Hematology";
-
-    if (
-      title.includes("electrolyte")
-    )
-      return "Electrolyte Reagents";
-
-    if (
-      title.includes("biochemistry")
-    )
-      return "Biochemistry";
-
-    if (
-      title.includes("immuno")
-    )
-      return "Immunoassay Analyzer";
-
-    return "Other Products";
-
-  };
 
 
 
@@ -183,79 +146,122 @@ export default function Products({ city }) {
 
     const fetchProducts = async () => {
 
-      const snap = await getDoc(
+      try {
 
-        doc(
-
-          db,
-
-          "websites",
-
-          "globalbiomedicalsin",
-
-          "pages",
-
-          "products"
-
-        )
-
-      );
-
-      if (!snap.exists()) return;
-
-      const raw =
-        snap.data().products || [];
-
-      const slugify = (text = "") =>
-
-        text
-
-          .toLowerCase()
-
-          .trim()
-
-          .replace(/[^a-z0-9\s-]/g, "")
-
-          .replace(/\s+/g, "-");
-
-
-
-      const formatted =
-
-        raw
-
-          .filter(
-
-            (p) =>
-
-              p.isPublished !== false
-
+        // Category Products
+        const categorySnap = await getDocs(
+          collection(
+            db,
+            "websites",
+            "globalbiomedicalsin",
+            "pages",
+            "categoryproducts",
+            "categories"
           )
+        );
 
-          .map((item, index) => ({
+        const allProducts = [];
+        const categoryList = [];
 
-            ...item,
+        categorySnap.forEach((categoryDoc) => {
 
-            // slug:
+          const data = categoryDoc.data();
 
-            //   item.slug ||
-
-            //   `${slugify(item.title)}-${index}`,
-
-            slug:
-            item.slug ||
-            slugify(item.title),
-            uid:index,
-
+          categoryList.push({
+            id: categoryDoc.id,
             category:
+              data.category ||
+              categoryDoc.id
+          });
 
-              item.category ||
+          const products =
+            (data.products || [])
+              .filter(
+                (p) =>
+                  p.isPublished !== false
+              )
+              .map((item, index) => ({
 
-              getCategory(item),
+                ...item,
 
-          }));
+                slug:
+                  item.slug ||
+                  item.title
+                    ?.toLowerCase()
+                    .trim()
+                    .replace(/[^a-z0-9\s-]/g, "")
+                    .replace(/\s+/g, "-"),
 
-      setProducts(formatted);
+                uid: `${categoryDoc.id}-${index}`,
+
+                category:
+                  data.category ||
+                  categoryDoc.id,
+
+              }));
+
+          allProducts.push(...products);
+
+        });
+
+        // OLD PRODUCTS COLLECTION
+        const productSnap = await getDoc(
+          doc(
+            db,
+            "websites",
+            "globalbiomedicalsin",
+            "pages",
+            "products"
+          )
+        );
+
+        if (productSnap.exists()) {
+
+          const oldProducts =
+            (productSnap.data().products || [])
+              .filter(
+                (p) =>
+                  p.isPublished !== false
+              )
+              .map((item, index) => ({
+
+                ...item,
+
+                slug:
+                  item.slug ||
+                  item.title
+                    ?.toLowerCase()
+                    .trim()
+                    .replace(/[^a-z0-9\s-]/g, "")
+                    .replace(/\s+/g, "-"),
+
+                uid: `other-${index}`,
+
+                category:
+                  item.category ||
+                  "Other Products",
+
+              }));
+
+          allProducts.push(...oldProducts);
+
+        }
+
+        setProducts(allProducts);
+
+        setAllCategories([
+          ...categoryList,
+          {
+            id: "other-products",
+            category: "Other Products"
+          }
+        ]);
+
+      } catch (err) {
+
+        console.log(err);
+
+      }
 
     };
 
@@ -359,27 +365,27 @@ export default function Products({ city }) {
 
   // }, [categories]);
 
-  
 
 
 
-const toggleCategory = (category) => {
 
-  if (openedCategory === category) {
+  const toggleCategory = (category) => {
 
-    setOpenedCategory("");
+    if (openedCategory === category) {
 
-    setActiveCategory("");
+      setOpenedCategory("");
 
-    return;
+      setActiveCategory("");
 
-  }
+      return;
 
-  setOpenedCategory(category);
+    }
 
-  setActiveCategory(category);
+    setOpenedCategory(category);
 
-};
+    setActiveCategory(category);
+
+  };
 
 
 
@@ -419,27 +425,27 @@ const toggleCategory = (category) => {
 
   };
 
-    /* -----------------------------
-      PAGINATION
-  ------------------------------ */
+  /* -----------------------------
+    PAGINATION
+------------------------------ */
 
   const totalPages =
     itemsPerPage === "all"
       ? 1
       : Math.ceil(
-          filteredProducts.length /
-            itemsPerPage
-        );
+        filteredProducts.length /
+        itemsPerPage
+      );
 
   const paginatedProducts =
     itemsPerPage === "all"
       ? filteredProducts
       : filteredProducts.slice(
-          (currentPage - 1) *
-            itemsPerPage,
-          currentPage *
-            itemsPerPage
-        );
+        (currentPage - 1) *
+        itemsPerPage,
+        currentPage *
+        itemsPerPage
+      );
 
   const paginatedGroupedProducts =
     useMemo(() => {
@@ -586,23 +592,23 @@ const toggleCategory = (category) => {
 
   };
 
-const scrollToProduct = (slug, category) => {
+  const scrollToProduct = (slug, category) => {
 
-  setOpenedCategory(category);
-  setActiveCategory(category);
+    setOpenedCategory(category);
+    setActiveCategory(category);
 
-  const el = document.getElementById(slug);
+    const el = document.getElementById(slug);
 
-  if (el) {
+    if (el) {
 
-    el.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
-    });
+      el.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
 
-  }
+    }
 
-};
+  };
 
   return (
 
@@ -669,16 +675,14 @@ const scrollToProduct = (slug, category) => {
 
                     type="text"
 
-                    placeholder="Search..."
+                    placeholder="Search Category..."
 
-                    value={search}
+                    value={categorySearch}
 
-                    onChange={(e)=>
+                    onChange={(e) =>
 
-                      setSearch(
-
+                      setCategorySearch(
                         e.target.value
-
                       )
 
                     }
@@ -692,117 +696,125 @@ const scrollToProduct = (slug, category) => {
                   {
 
                     Object.keys(
-
                       groupedProducts
+                    )
+                      .filter((category) =>
 
-                    ).map((category)=>(
+                        category
+                          .toLowerCase()
+                          .includes(
+                            categorySearch.toLowerCase()
+                          )
 
-                      <div
+                      )
+                      .map((category) => (
 
-                        key={category}
+                        <div
 
-                        className="category-item"
+                          key={category}
 
-                      >
-
-                        <button
-
-                          className={`category-btn
-
-                          ${activeCategory===category
-
-                          ?"active"
-
-                          :""}
-
-                          `}
-
-                          onClick={()=>
-
-                            toggleCategory(
-
-                              category
-
-                            )
-
-                          }
+                          className="category-item"
 
                         >
 
-                          <span>
+                          <button
 
-                            {
+                            className={`category-btn
 
-                              openedCategory===category
+                          ${activeCategory === category
 
-                              ?
+                                ? "active"
 
-                              <FiChevronDown/>
+                                : ""}
 
-                              :
+                          `}
 
-                              <FiChevronRight/>
+                            onClick={() =>
 
-                            }
+                              toggleCategory(
 
-                            {category}
+                                category
 
-                          </span>
-
-                          <span className="count">
-
-                            {
-
-                              groupedProducts[category].length
+                              )
 
                             }
 
-                          </span>
+                          >
 
-                        </button>
+                            <span>
 
-                    <div
-                      className="category-content"
-                      style={{
-                      maxHeight:
-                      openedCategory===category
-                      ? groupedProducts[category].length * 45 + "px"
-                      : "0px"
-                      }}
-                      >
+                              {
 
-                          {
+                                openedCategory === category
 
-                            groupedProducts[category]
+                                  ?
 
-                            .map((item,index)=>(
+                                  <FiChevronDown />
 
-                              <button
+                                  :
 
-                                // key={`${item.slug}-${index}`}
-                                key={item.uid}
+                                  <FiChevronRight />
 
-                                className="product-link"
-
-                                onClick={() =>
-                                scrollToProduct(item.slug, category)
                               }
 
-                              >
+                              {category}
 
-                                {item.title}
+                            </span>
 
-                              </button>
+                            <span className="count">
 
-                            ))
+                              {
 
-                          }
+                                groupedProducts[category].length
+
+                              }
+
+                            </span>
+
+                          </button>
+
+                          <div
+                            className="category-content"
+                            style={{
+                              maxHeight:
+                                openedCategory === category
+                                  ? groupedProducts[category].length * 45 + "px"
+                                  : "0px"
+                            }}
+                          >
+
+                            {
+
+                              groupedProducts[category]
+
+                                .map((item, index) => (
+
+                                  <button
+
+                                    // key={`${item.slug}-${index}`}
+                                    key={item.uid}
+
+                                    className="product-link"
+
+                                    onClick={() =>
+                                      scrollToProduct(item.slug, category)
+                                    }
+
+                                  >
+
+                                    {item.title}
+
+                                  </button>
+
+                                ))
+
+                            }
+
+                          </div>
 
                         </div>
 
-                      </div>
-
-                    ))
+                      ))
 
                   }
 
@@ -834,7 +846,7 @@ const scrollToProduct = (slug, category) => {
 
                       value={search}
 
-                      onChange={(e)=>
+                      onChange={(e) =>
 
                         setSearch(
 
@@ -868,7 +880,7 @@ const scrollToProduct = (slug, category) => {
 
               </div>
 
-                            {
+              {
 
                 Object.entries(
 
@@ -1074,7 +1086,7 @@ const scrollToProduct = (slug, category) => {
 
                                       className="btn-view"
 
-                                      onClick={()=>
+                                      onClick={() =>
 
                                         viewDetails(item)
 
@@ -1120,7 +1132,7 @@ const scrollToProduct = (slug, category) => {
 
               {/* PAGINATION START */}
 
-                            {/* PAGINATION */}
+              {/* PAGINATION */}
 
               <div className="pagination-card">
 
