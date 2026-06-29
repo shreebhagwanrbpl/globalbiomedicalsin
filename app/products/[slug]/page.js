@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { doc, getDoc, addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import toast, { Toaster } from "react-hot-toast";
+import "@/app/globals.css";
 
 export default function ProductDetailPage() {
     const { slug } = useParams();
@@ -32,18 +33,8 @@ export default function ProductDetailPage() {
             if (!snap.exists()) return;
 
             const products = snap.data().products || [];
-
-            const found = products.find((p) => {
-                const productSlug = p.title
-                    ?.toLowerCase()
-                    .trim()
-                    .replace(/[^a-z0-9\s-]/g, "")
-                    .replace(/\s+/g, "-");
-
-                return productSlug === slug;
-            });
-
-            setProduct(found);
+// TEMPORARY
+setProduct(products[0]);
         };
 
         fetchProduct();
@@ -146,6 +137,51 @@ export default function ProductDetailPage() {
                         </div>
 
                     </div>
+
+                    <div className="d-flex gap-3 mt-3 flex-wrap">
+
+    {/* Dynamic Image */}
+    <img
+        src={product.image || "/no-image.png"}
+        className="thumb-image active-thumb"
+        alt=""
+    />
+
+    {/* Dummy Images */}
+
+    <img
+        src="https://placehold.co/100x100?text=Image+2"
+        className="thumb-image"
+        alt=""
+    />
+
+    <img
+        src="https://placehold.co/100x100?text=Image+3"
+        className="thumb-image"
+        alt=""
+    />
+
+    <img
+        src="https://placehold.co/100x100?text=Image+4"
+        className="thumb-image"
+        alt=""
+    />
+
+    {/* Video */}
+
+    <div className="media-thumb">
+        🎥
+        <small>Video</small>
+    </div>
+
+    {/* PDF */}
+
+    <div className="media-thumb">
+        📄
+        <small>PDF</small>
+    </div>
+
+</div>
 
                     <div className="col-lg-7">
 

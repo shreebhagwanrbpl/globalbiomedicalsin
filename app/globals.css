@@ -596,3 +596,77 @@ footer {
     height: 40px;
   }
 }
+
+.thumb-image{
+
+    width:90px;
+    height:90px;
+
+    object-fit:cover;
+
+    border-radius:10px;
+
+    border:1px solid #ddd;
+
+    cursor:pointer;
+
+    transition:.3s;
+
+}
+
+.thumb-image:hover{
+
+    transform:translateY(-4px);
+
+    border-color:#198754;
+
+}
+
+.active-thumb{
+
+    border:2px solid #198754;
+
+}
+
+.media-thumb{
+
+    width:90px;
+    height:90px;
+
+    border:1px dashed #bbb;
+
+    border-radius:10px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:center;
+
+    align-items:center;
+
+    cursor:pointer;
+
+    font-size:28px;
+
+    color:#666;
+
+    transition:.3s;
+
+}
+
+.media-thumb small{
+
+    font-size:12px;
+
+    margin-top:6px;
+
+}
+
+.media-thumb:hover{
+
+    background:#f8f9fa;
+
+    border-color:#198754;
+
+}
