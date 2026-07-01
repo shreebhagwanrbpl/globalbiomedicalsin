@@ -980,17 +980,12 @@ export default function Products({ city }) {
                                   <div className="list-image">
 
                                     <img
-
                                       src={
-
-                                        item.image ||
-
-                                        "/no-image.png"
-
+                                        Array.isArray(item.images) && item.images.length > 0
+                                          ? item.images[0]
+                                          : "/no-image.png"
                                       }
-
                                       alt={item.title}
-
                                     />
 
                                   </div>

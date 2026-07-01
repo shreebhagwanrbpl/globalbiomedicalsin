@@ -6,12 +6,13 @@ import { doc, getDoc, addDoc, collection, serverTimestamp } from "firebase/fires
 import { db } from "@/lib/firebase";
 import toast, { Toaster } from "react-hot-toast";
 import "@/app/globals.css";
-
+import "./page.css"
+import { FaPlay } from "react-icons/fa";
 export default function ProductDetailPage() {
     const { slug } = useParams();
-
     const [product, setProduct] = useState(null);
-
+    const [selectedImage, setSelectedImage] = useState("");
+    const [selectedMedia, setSelectedMedia] = useState("image");
     const [form, setForm] = useState({
         name: "",
         email: "",
@@ -20,32 +21,76 @@ export default function ProductDetailPage() {
 
     useEffect(() => {
         const fetchProduct = async () => {
-            const snap = await getDoc(
-                doc(
-                    db,
-                    "websites",
-                    "globalbiomedicalsin",
-                    "pages",
-                    "products"
-                )
-            );
+            try {
 
-            if (!snap.exists()) return;
+                const snap = await getDoc(
+                    doc(
+                        db,
+                        "websites",
+                        "globalbiomedicalsin",
+                        "pages",
+                        "products"
+                    )
+                );
 
-            const products = snap.data().products || [];
-                // TEMPORARY
-                    setProduct(products[0]);
-                        };
+                if (!snap.exists()) {
+                    console.log("Products document not found");
+                    return;
+                }
 
-                        fetchProduct();
-                    }, [slug]);
+                const products = snap.data().products || [];
 
-                    const handleChange = (e) => {
-                        setForm({
-                            ...form,
-                            [e.target.name]: e.target.value,
-                        });
-                    };
+                console.log("URL SLUG =", slug);
+
+                console.log(
+                    "ALL PRODUCTS =",
+                    products.map((p) => ({
+                        title: p.title,
+                        slug: p.slug,
+                        images: p.images,
+                        image: p.image,
+                    }))
+                );
+
+                const foundProduct = products.find((p) => {
+                    const generatedSlug = p.title
+                        ?.toLowerCase()
+                        .trim()
+                        .replace(/[^a-z0-9\s-]/g, "")
+                        .replace(/\s+/g, "-");
+
+                    return generatedSlug === slug;
+                });
+
+                console.log("FOUND PRODUCT =", foundProduct);
+
+                if (!foundProduct) {
+                    console.log("PRODUCT NOT FOUND");
+                    setProduct(null);
+                    return;
+                }
+
+                setProduct(foundProduct);
+
+                if (foundProduct.images?.length > 0) {
+                    setSelectedImage(foundProduct.images[0]);
+                    setSelectedMedia("image");
+                }
+
+            } catch (err) {
+                console.error("FETCH PRODUCT ERROR:", err);
+            }
+        };
+
+        fetchProduct();
+    }, [slug]);
+
+    const handleChange = (e) => {
+        setForm({
+            ...form,
+            [e.target.name]: e.target.value,
+        });
+    };
 
     const handleSubmit = async () => {
         const { name, email, phone } = form;
@@ -119,60 +164,111 @@ export default function ProductDetailPage() {
     return (
         <>
             <Toaster position="top-right" />
+
             <div className="container py-5 mt-5">
+
                 <div className="row g-5">
-                    <div className="col-lg-5 d-flex align-items-center">
-                        <div className="border rounded p-3 bg-white shadow-sm w-100">
-                            <img
-                                src={product.image || "/no-image.png"}
-                                alt={product.title}
-                                className="img-fluid w-100"
-                            />
+
+                    {/* LEFT SIDE */}
+                    <div className="col-lg-5">
+
+                        <div className="product-main-image">
+
+                            {selectedMedia === "video" && product.video ? (
+
+                                <video
+                                    key={product.video}
+                                    controls
+                                    autoPlay
+                                    className="main-product-image"
+                                >
+                                    <source
+                                        src={product.video}
+                                        type="video/mp4"
+                                    />
+                                </video>
+
+                            ) : (
+
+                                <img
+                                    src={
+                                        selectedImage ||
+                                        "/no-image.png"
+                                    }
+                                    alt={product.title}
+                                    className="main-product-image"
+                                />
+
+                            )}
+
                         </div>
+
+                        <div
+                            className="d-flex gap-3 mt-3 flex-wrap"
+                        >
+
+                            {product.images?.map((img, index) => (
+                                <img
+                                    key={index}
+                                    src={img}
+                                    alt={`product-${index}`}
+                                    onClick={() => {
+                                        setSelectedImage(img);
+                                        setSelectedMedia("image");
+                                    }}
+                                    style={{
+                                        width: "90px",
+                                        height: "90px",
+                                        objectFit: "cover",
+                                        borderRadius: "8px",
+                                        cursor: "pointer",
+                                        border:
+                                            selectedMedia === "image" &&
+                                                selectedImage === img
+                                                ? "2px solid #198754"
+                                                : "2px solid transparent",
+                                    }}
+                                />
+                            ))}
+
+                            {product.video && (
+                                <div
+                                    className="video-thumb"
+                                    onClick={() => {
+                                        setSelectedMedia("video");
+                                    }}
+                                    style={{
+                                        cursor: "pointer",
+                                        border:
+                                            selectedMedia === "video"
+                                                ? "2px solid #198754"
+                                                : "2px solid transparent",
+                                    }}
+                                >
+                                    <FaPlay size={24} />
+                                    <span>Video</span>
+                                </div>
+                            )}
+
+                            {product.pdf && (
+                                <a
+                                    href={product.pdf}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="media-thumb"
+                                >
+                                    📄
+                                    <small>PDF</small>
+                                </a>
+                            )}
+
+                        </div>
+
                     </div>
-                    <div className="d-flex gap-3 mt-3 flex-wrap">
-                        {/* Dynamic Image */}
-                        <img
-                            src={product.image || "/no-image.png"}
-                            className="thumb-image active-thumb"
-                            alt=""
-                        />
 
-                        {/* Dummy Images */}
-                        <img
-                            src="https://placehold.co/100x100?text=Image+2"
-                            className="thumb-image"
-                            alt=""
-                        />
-
-                        <img
-                            src="https://placehold.co/100x100?text=Image+3"
-                            className="thumb-image"
-                            alt=""
-                        />
-
-                        <img
-                            src="https://placehold.co/100x100?text=Image+4"
-                            className="thumb-image"
-                            alt=""
-                        />
-
-                        {/* Video */}
-
-                        <div className="media-thumb">
-                            🎥
-                            <small>Video</small>
-                        </div>
-
-                        {/* PDF */}
-
-                        <div className="media-thumb">
-                            📄
-                            <small>PDF</small>
-                        </div>
-                    </div>
-
+                    {/* RIGHT SIDE */}
                     <div className="col-lg-7">
+
                         <h1 className="fw-bold mb-3">
                             {product.title}
                         </h1>
@@ -190,6 +286,9 @@ export default function ProductDetailPage() {
                                         "title",
                                         "desc",
                                         "image",
+                                        "images",
+                                        "video",
+                                        "pdf",
                                         "id",
                                         "createdAt",
                                         "isPublished",
@@ -215,6 +314,7 @@ export default function ProductDetailPage() {
                                         <span>
                                             {v || "-"}
                                         </span>
+
                                     </div>
                                 );
                             })}
