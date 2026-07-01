@@ -2,7 +2,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "aos/dist/aos.css";
 import "./globals.css";
-import Script from "next/script";
+// import Script from "next/script";
 
 import AOSInit from "./components/AOSInit";
 import Navbar from "./components/Navbar";
@@ -102,7 +102,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       
       <body>
-         <Script
+         {/* <Script
     id="organization-schema"
     type="application/ld+json"
     strategy="beforeInteractive"
@@ -119,7 +119,24 @@ export default function RootLayout({ children }) {
         sameAs: [],
       }),
     }}
-  />
+  /> */}
+
+  <script
+  type="application/ld+json"
+  dangerouslySetInnerHTML={{
+    __html: JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      name: "Global Biomedical",
+      url: "https://globalbiomedical.in",
+      logo: "https://globalbiomedical.in/logo.png",
+      image: "https://globalbiomedical.in/og-image.jpg",
+      description:
+        "Trusted supplier of laboratory equipment, diagnostic analyzers, biomedical instruments, reagents, and healthcare solutions.",
+      sameAs: [],
+    }),
+  }}
+/>
 
         <AOSInit />
 

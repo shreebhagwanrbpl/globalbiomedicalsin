@@ -1,18 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef  } from "react";
 import { useParams } from "next/navigation";
 import { doc, getDoc, addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import toast, { Toaster } from "react-hot-toast";
 import "@/app/globals.css";
 import "./page.css"
-import { FaPlay } from "react-icons/fa";
+import { FaPlay, FaShareAlt, FaWhatsapp, FaFacebook, FaInstagram, FaLink } from "react-icons/fa";
+
+
 export default function ProductDetailPage() {
+    const shareRef = useRef();
     const { slug } = useParams();
     const [product, setProduct] = useState(null);
     const [selectedImage, setSelectedImage] = useState("");
     const [selectedMedia, setSelectedMedia] = useState("image");
+    const [showShare, setShowShare] = useState(false);
     const [form, setForm] = useState({
         name: "",
         email: "",
@@ -145,6 +149,73 @@ export default function ProductDetailPage() {
         }
     };
 
+//     const shareText = `🔬 ${product?.title}
+
+// ${product?.desc}
+
+// 🌐 ${window.location.href}`;
+
+const handleCopy = async () => {
+  await navigator.clipboard.writeText(window.location.href);
+  toast.success("Link Copied");
+  setShowShare(false);
+};
+
+
+const handleWhatsapp = () => {
+
+  const shareText = `🔬 ${product?.title}
+
+${product?.desc}
+
+🌐 ${window.location.href}`;
+
+  window.open(
+    `https://wa.me/?text=${encodeURIComponent(shareText)}`,
+    "_blank"
+  );
+};
+
+const handleFacebook = () => {
+  window.open(
+    `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`,
+    "_blank"
+  );
+};
+
+const handleInstagram = async () => {
+  await navigator.clipboard.writeText(window.location.href);
+  toast.success("Instagram direct sharing available nahi hai. Link copy ho gaya.");
+};
+
+const handleNativeShare = async () => {
+  if (navigator.share) {
+    await navigator.share({
+      title: product.title,
+      text: product.desc,
+      url: window.location.href,
+    });
+  } else {
+    setShowShare(!showShare);
+  }
+};
+
+    useEffect(() => {
+    function close(e) {
+        if (
+            shareRef.current &&
+            !shareRef.current.contains(e.target)
+        ) {
+            setShowShare(false);
+        }
+    }
+
+    document.addEventListener("mousedown", close);
+
+    return () =>
+        document.removeEventListener("mousedown", close);
+}, []);
+
     if (!product) {
         return (
             <div
@@ -160,6 +231,11 @@ export default function ProductDetailPage() {
             </div>
         );
     }
+    
+
+
+
+
 
     return (
         <>
@@ -268,10 +344,76 @@ export default function ProductDetailPage() {
 
                     {/* RIGHT SIDE */}
                     <div className="col-lg-7">
+<div className="d-flex justify-content-between align-items-start position-relative">
 
-                        <h1 className="fw-bold mb-3">
-                            {product.title}
-                        </h1>
+    <h1 className="fw-bold mb-3">
+        {product.title}
+    </h1>
+
+   <div
+    ref={shareRef}
+    style={{ position: "relative" }}
+>
+
+        <button
+            className="btn btn-light border rounded-circle"
+            onClick={handleNativeShare}
+        >
+            <FaShareAlt />
+        </button>
+
+        {showShare && (
+
+            <div
+                className="shadow bg-white rounded p-2"
+                style={{
+                    position: "absolute",
+                    right: 0,
+                    top: "55px",
+                    width: "220px",
+                    zIndex: 1000,
+                }}
+            >
+
+                <button
+                    className="dropdown-item"
+                    onClick={handleCopy}
+                >
+                    <FaLink className="me-2" />
+                    Copy Link
+                </button>
+
+                <button
+                    className="dropdown-item"
+                    onClick={handleWhatsapp}
+                >
+                    <FaWhatsapp className="me-2 text-success" />
+                    WhatsApp
+                </button>
+
+                <button
+                    className="dropdown-item"
+                    onClick={handleFacebook}
+                >
+                    <FaFacebook className="me-2 text-primary" />
+                    Facebook
+                </button>
+
+                <button
+                    className="dropdown-item"
+                    onClick={handleInstagram}
+                >
+                    <FaInstagram className="me-2 text-danger" />
+                    Instagram
+                </button>
+
+            </div>
+
+        )}
+
+    </div>
+
+</div>
 
                         <p className="text-muted">
                             {product.desc}

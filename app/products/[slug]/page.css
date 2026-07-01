@@ -74,3 +74,29 @@
     font-size: 12px;
     font-weight: 600;
 }
+
+
+
+.dropdown-item{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:12px;
+    border:none;
+    background:white;
+    width:100%;
+    transition:.25s;
+}
+
+.dropdown-item:hover{
+    background:#f4f4f4;
+}
+
+.btn-light{
+    width:45px;
+    height:45px;
+}
+
+.btn-light svg{
+    font-size:18px;
+}
