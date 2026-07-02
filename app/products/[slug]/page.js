@@ -156,70 +156,29 @@ export default function ProductDetailPage() {
 // 🌐 ${window.location.href}`;
 
 const handleCopy = async () => {
-
-  const shareSlug =
-    product?.slug ||
-    window.location.pathname.split("/").pop();
-
-  const shareUrl =
-    `${window.location.origin}/share/${shareSlug}`;
-
-  await navigator.clipboard.writeText(shareUrl);
-
+  await navigator.clipboard.writeText(window.location.href);
   toast.success("Link Copied");
-
   setShowShare(false);
 };
 
 
-// const handleWhatsapp = () => {
-
-//   const shareText = `🔬 ${product?.title}
-
-// ${product?.desc}
-
-// 🌐 ${window.location.href}`;
-
-//   window.open(
-//     `https://wa.me/?text=${encodeURIComponent(shareText)}`,
-//     "_blank"
-//   );
-// };
-
-
 const handleWhatsapp = () => {
 
-  const shareSlug =
-    product?.slug ||
-    window.location.pathname.split("/").pop();
+  const shareText = `🔬 ${product?.title}
 
-  const shareUrl =
-    `${window.location.origin}/share/${shareSlug}`;
+${product?.desc}
+
+🌐 ${window.location.href}`;
 
   window.open(
-    `https://wa.me/?text=${encodeURIComponent(shareUrl)}`,
+    `https://wa.me/?text=${encodeURIComponent(shareText)}`,
     "_blank"
   );
 };
 
-// const handleFacebook = () => {
-//   window.open(
-//     `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`,
-//     "_blank"
-//   );
-// };
-
 const handleFacebook = () => {
-
-  const shareSlug =
-    product?.slug ||
-    window.location.pathname.split("/").pop();
-
-  const shareUrl =
-    `${window.location.origin}/share/${shareSlug}`;
-
   window.open(
-    `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`,
+    `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`,
     "_blank"
   );
 };
@@ -229,42 +188,17 @@ const handleInstagram = async () => {
   toast.success("Instagram direct sharing available nahi hai. Link copy ho gaya.");
 };
 
-// const handleNativeShare = async () => {
-//   if (navigator.share) {
-//     await navigator.share({
-//       title: product.title,
-//       text: product.desc,
-//       url: window.location.href,
-//     });
-//   } else {
-//     setShowShare(!showShare);
-//   }
-// };
-
 const handleNativeShare = async () => {
-
-  const shareSlug =
-    product?.slug ||
-    window.location.pathname.split("/").pop();
-
-  const shareUrl =
-    `${window.location.origin}/share/${shareSlug}`;
-
   if (navigator.share) {
-
     await navigator.share({
       title: product.title,
       text: product.desc,
-      url: shareUrl,
+      url: window.location.href,
     });
-
   } else {
-
     setShowShare(!showShare);
-
   }
 };
-
 
     useEffect(() => {
     function close(e) {
