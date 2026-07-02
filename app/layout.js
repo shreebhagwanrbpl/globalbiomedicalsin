@@ -9,7 +9,7 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 
 export const metadata = {
-  metadataBase: new URL("https://globalbiomedical.in"),
+  metadataBase: new URL("https://globalbiomedicals.in"),
 
   title: {
     default: "Global Biomedical | Laboratory & Medical Equipment Supplier",
@@ -66,7 +66,7 @@ export const metadata = {
     title: "Global Biomedical | Laboratory & Medical Equipment Supplier",
     description:
       "Trusted supplier of laboratory equipment, diagnostic analyzers, biomedical instruments, reagents, and healthcare solutions.",
-    url: "https://globalbiomedical.in",
+    url: "https://globalbiomedicals.in",
     siteName: "Global Biomedical",
     locale: "en_IN",
     type: "website",
@@ -128,9 +128,9 @@ export default function RootLayout({ children }) {
       "@context": "https://schema.org",
       "@type": "Organization",
       name: "Global Biomedical",
-      url: "https://globalbiomedical.in",
-      logo: "https://globalbiomedical.in/logo.png",
-      image: "https://globalbiomedical.in/og-image.jpg",
+      url: "https://globalbiomedicals.in",
+      logo: "https://globalbiomedicals.in/logo.png",
+      image: "https://globalbiomedicals.in/og-image.jpg",
       description:
         "Trusted supplier of laboratory equipment, diagnostic analyzers, biomedical instruments, reagents, and healthcare solutions.",
       sameAs: [],
