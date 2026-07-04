@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef  } from "react";
-import { useParams } from "next/navigation";
+import { useEffect, useState, useRef } from "react";
 import { doc, getDoc, addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import toast, { Toaster } from "react-hot-toast";
@@ -9,7 +8,7 @@ import "@/app/globals.css";
 import "./page.css"
 import { FaPlay, FaShareAlt, FaWhatsapp, FaFacebook, FaInstagram, FaLink } from "react-icons/fa";
 
-
+import { useParams, usePathname } from "next/navigation";
 export default function ProductDetailPage() {
     const shareRef = useRef();
     const { slug } = useParams();
@@ -22,7 +21,28 @@ export default function ProductDetailPage() {
         email: "",
         phone: "",
     });
+    const pathname = usePathname();
 
+    const pathParts = pathname.split("/").filter(Boolean);
+
+    const reservedRoutes = [
+        "about",
+        "contact",
+        "item",
+        "items",
+        "products",
+        "services",
+    ];
+
+    const district =
+        pathParts[0] &&
+            !reservedRoutes.includes(pathParts[0])
+            ? pathParts[0]
+            : "india";
+
+    const city =
+        district.charAt(0).toUpperCase() +
+        district.slice(1);
     useEffect(() => {
         const fetchProduct = async () => {
             try {
@@ -149,72 +169,72 @@ export default function ProductDetailPage() {
         }
     };
 
-//     const shareText = `🔬 ${product?.title}
+    //     const shareText = `🔬 ${product?.title}
 
-// ${product?.desc}
+    // ${product?.desc}
 
-// 🌐 ${window.location.href}`;
+    // 🌐 ${window.location.href}`;
 
-const handleCopy = async () => {
-  await navigator.clipboard.writeText(window.location.href);
-  toast.success("Link Copied");
-  setShowShare(false);
-};
+    const handleCopy = async () => {
+        await navigator.clipboard.writeText(window.location.href);
+        toast.success("Link Copied");
+        setShowShare(false);
+    };
 
 
-const handleWhatsapp = () => {
+    const handleWhatsapp = () => {
 
-  const shareText = `🔬 ${product?.title}
+        const shareText = `🔬 ${product?.title}
 
 ${product?.desc}
 
 🌐 ${window.location.href}`;
 
-  window.open(
-    `https://wa.me/?text=${encodeURIComponent(shareText)}`,
-    "_blank"
-  );
-};
+        window.open(
+            `https://wa.me/?text=${encodeURIComponent(shareText)}`,
+            "_blank"
+        );
+    };
 
-const handleFacebook = () => {
-  window.open(
-    `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`,
-    "_blank"
-  );
-};
+    const handleFacebook = () => {
+        window.open(
+            `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`,
+            "_blank"
+        );
+    };
 
-const handleInstagram = async () => {
-  await navigator.clipboard.writeText(window.location.href);
-  toast.success("Instagram direct sharing available nahi hai. Link copy ho gaya.");
-};
+    const handleInstagram = async () => {
+        await navigator.clipboard.writeText(window.location.href);
+        toast.success("Instagram direct sharing available nahi hai. Link copy ho gaya.");
+    };
 
-const handleNativeShare = async () => {
-  if (navigator.share) {
-    await navigator.share({
-      title: product.title,
-      text: product.desc,
-      url: window.location.href,
-    });
-  } else {
-    setShowShare(!showShare);
-  }
-};
+    const handleNativeShare = async () => {
+        if (navigator.share) {
+            await navigator.share({
+                title: product.title,
+                text: product.desc,
+                url: window.location.href,
+            });
+        } else {
+            setShowShare(!showShare);
+        }
+    };
 
     useEffect(() => {
-    function close(e) {
-        if (
-            shareRef.current &&
-            !shareRef.current.contains(e.target)
-        ) {
-            setShowShare(false);
+        function close(e) {
+            if (
+                shareRef.current &&
+                !shareRef.current.contains(e.target)
+            ) {
+                setShowShare(false);
+            }
         }
-    }
 
-    document.addEventListener("mousedown", close);
+        document.addEventListener("mousedown", close);
 
-    return () =>
-        document.removeEventListener("mousedown", close);
-}, []);
+        return () =>
+            document.removeEventListener("mousedown", close);
+    }, []);
 
     if (!product) {
         return (
@@ -231,7 +251,7 @@ const handleNativeShare = async () => {
             </div>
         );
     }
-    
+
 
 
 
@@ -344,76 +364,76 @@ const handleNativeShare = async () => {
 
                     {/* RIGHT SIDE */}
                     <div className="col-lg-7">
-<div className="d-flex justify-content-between align-items-start position-relative">
+                        <div className="d-flex justify-content-between align-items-start position-relative">
 
-    <h1 className="fw-bold mb-3">
-        {product.title}
-    </h1>
+                            <h1 className="fw-bold mb-3">
+                                {product.title}
+                            </h1>
 
-   <div
-    ref={shareRef}
-    style={{ position: "relative" }}
->
+                            <div
+                                ref={shareRef}
+                                style={{ position: "relative" }}
+                            >
 
-        <button
-            className="btn btn-light border rounded-circle"
-            onClick={handleNativeShare}
-        >
-            <FaShareAlt />
-        </button>
+                                <button
+                                    className="btn btn-light border rounded-circle"
+                                    onClick={handleNativeShare}
+                                >
+                                    <FaShareAlt />
+                                </button>
 
-        {showShare && (
+                                {showShare && (
 
-            <div
-                className="shadow bg-white rounded p-2"
-                style={{
-                    position: "absolute",
-                    right: 0,
-                    top: "55px",
-                    width: "220px",
-                    zIndex: 1000,
-                }}
-            >
+                                    <div
+                                        className="shadow bg-white rounded p-2"
+                                        style={{
+                                            position: "absolute",
+                                            right: 0,
+                                            top: "55px",
+                                            width: "220px",
+                                            zIndex: 1000,
+                                        }}
+                                    >
 
-                <button
-                    className="dropdown-item"
-                    onClick={handleCopy}
-                >
-                    <FaLink className="me-2" />
-                    Copy Link
-                </button>
+                                        <button
+                                            className="dropdown-item"
+                                            onClick={handleCopy}
+                                        >
+                                            <FaLink className="me-2" />
+                                            Copy Link
+                                        </button>
 
-                <button
-                    className="dropdown-item"
-                    onClick={handleWhatsapp}
-                >
-                    <FaWhatsapp className="me-2 text-success" />
-                    WhatsApp
-                </button>
+                                        <button
+                                            className="dropdown-item"
+                                            onClick={handleWhatsapp}
+                                        >
+                                            <FaWhatsapp className="me-2 text-success" />
+                                            WhatsApp
+                                        </button>
 
-                <button
-                    className="dropdown-item"
-                    onClick={handleFacebook}
-                >
-                    <FaFacebook className="me-2 text-primary" />
-                    Facebook
-                </button>
+                                        <button
+                                            className="dropdown-item"
+                                            onClick={handleFacebook}
+                                        >
+                                            <FaFacebook className="me-2 text-primary" />
+                                            Facebook
+                                        </button>
 
-                <button
-                    className="dropdown-item"
-                    onClick={handleInstagram}
-                >
-                    <FaInstagram className="me-2 text-danger" />
-                    Instagram
-                </button>
+                                        <button
+                                            className="dropdown-item"
+                                            onClick={handleInstagram}
+                                        >
+                                            <FaInstagram className="me-2 text-danger" />
+                                            Instagram
+                                        </button>
 
-            </div>
+                                    </div>
 
-        )}
+                                )}
 
-    </div>
+                            </div>
 
-</div>
+                        </div>
 
                         <p className="text-muted">
                             {product.desc}
@@ -511,8 +531,111 @@ const handleNativeShare = async () => {
 
                         </div>
 
-                    </div>
 
+                    </div>
+                    <div className="seo-content mt-5">
+
+                        <h2>
+                            {product.title} in {city}
+                        </h2>
+
+                        <p>
+                            Looking for a reliable {product.title} in {city}? We are a trusted
+                            manufacturer, supplier, exporter and service provider of premium quality
+                            {product.title} for hospitals, pathology laboratories, diagnostic centers,
+                            research institutes and healthcare facilities. Our advanced laboratory
+                            equipment is designed to deliver accurate results, reliable performance,
+                            user-friendly operation and long-term durability. With years of experience
+                            in the biomedical industry, we provide complete installation, training,
+                            maintenance and after-sales support across {city}.
+                        </p>
+
+                        <h3>
+                            Why Choose Our {product.title} in {city}
+                        </h3>
+
+                        <p>
+                            Our {product.title} is widely preferred by laboratories and healthcare
+                            professionals due to its high accuracy, robust construction, advanced
+                            technology and dependable performance. We understand the importance of
+                            reliable diagnostic equipment, which is why we offer quality-tested
+                            laboratory instruments that meet modern healthcare requirements. Whether
+                            you need equipment for a small diagnostic center or a large hospital,
+                            we provide the right solution at competitive prices in {city}.
+                        </p>
+
+                        <h3>
+                            Leading {product.title} Manufacturer in {city}
+                        </h3>
+
+                        <p>
+                            As a trusted {product.title} manufacturer in {city}, we focus on quality,
+                            innovation and customer satisfaction. Our products are manufactured using
+                            advanced technology and premium-grade components to ensure accurate testing,
+                            efficient workflow and long operational life. We continuously upgrade our
+                            products to meet the evolving needs of laboratories and healthcare
+                            professionals.
+                        </p>
+
+                        <h3>
+                            Trusted {product.title} Supplier in {city}
+                        </h3>
+
+                        <p>
+                            We are among the most trusted {product.title} suppliers in {city},
+                            providing genuine products, competitive pricing and timely delivery.
+                            Our experienced team helps customers choose the most suitable laboratory
+                            equipment based on their requirements and budget. From product selection
+                            to installation and support, we ensure a smooth and hassle-free experience.
+                        </p>
+
+                        <h3>
+                            Reliable {product.title} Exporter in {city}
+                        </h3>
+
+                        <p>
+                            We are also recognized as a reliable {product.title} exporter in {city},
+                            serving hospitals, laboratories and healthcare organizations across India
+                            and international markets. Our strong logistics network enables us to
+                            deliver products safely and efficiently while maintaining the highest
+                            quality standards.
+                        </p>
+
+                        <h3>
+                            Applications of {product.title}
+                        </h3>
+
+                        <p>
+                            {product.title} is extensively used in pathology laboratories, hospitals,
+                            blood testing centers, research facilities, medical colleges and diagnostic
+                            institutions. It helps healthcare professionals perform accurate testing,
+                            improve laboratory efficiency and maintain consistent diagnostic results.
+                        </p>
+
+                        <h3>
+                            Installation, Training & After-Sales Support in {city}
+                        </h3>
+
+                        <p>
+                            Our commitment does not end after product delivery. We provide complete
+                            installation, operator training, maintenance guidance and technical support
+                            for every {product.title} supplied in {city}. Our dedicated service team
+                            ensures that your equipment operates smoothly and efficiently for years.
+                        </p>
+
+                        <h3>
+                            Buy {product.title} at Best Price in {city}
+                        </h3>
+
+                        <p>
+                            If you are searching for the best {product.title} price in {city},
+                            contact our team today. We offer high-quality laboratory equipment,
+                            expert consultation, prompt delivery and dependable customer support.
+                            Submit your enquiry now to receive detailed specifications, pricing and
+                            product recommendations.
+                        </p>
+
+                    </div>
                 </div>
 
             </div>
