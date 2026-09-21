@@ -1,89 +1,81 @@
-import { adminDb } from "@/lib/firebase-admin";
+import { fetchFullCatalog, fetchDistricts } from "@/lib/data-fetcher-server";
+import { getSiteConfig } from "@/lib/site-config";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function sitemap() {
-  const baseUrl =
-    "https://globalbiomedicals.in";
+  const siteConfig = getSiteConfig();
+  const baseUrl = siteConfig.domain;
+
   const staticPages = [
     "",
     "/about",
     "/contact",
     "/services",
     "/products",
+    "/items",
   ].map((route) => ({
     url: `${baseUrl}${route}`,
-    lastModified:
-      new Date(),
+    lastModified: new Date(),
   }));
 
   try {
-    const snapshot =
-      await adminDb
-        .collection("websites")
-        .doc(
-          "globalbiomedicalsin"
-        )
-        .collection(
-          "districts"
-        )
-        .get();
+    const [districts, products] = await Promise.all([
+      fetchDistricts(),
+      fetchFullCatalog(),
+    ]);
 
-    const districtPages =
-      [];
+    const districtPages = [];
+    districts.forEach((dist) => {
+      const slug = dist.slug || dist.id;
+      districtPages.push(
+        {
+          url: `${baseUrl}/${slug}`,
+          lastModified: new Date(),
+        },
+        {
+          url: `${baseUrl}/${slug}/products`,
+          lastModified: new Date(),
+        },
+        {
+          url: `${baseUrl}/${slug}/items`,
+          lastModified: new Date(),
+        },
+        {
+          url: `${baseUrl}/${slug}/services`,
+          lastModified: new Date(),
+        },
+        {
+          url: `${baseUrl}/${slug}/about`,
+          lastModified: new Date(),
+        },
+        {
+          url: `${baseUrl}/${slug}/contact`,
+          lastModified: new Date(),
+        }
+      );
+    });
 
-    snapshot.forEach(
-      (districtDoc) => {
-        const slug =
-          districtDoc.id;
-
-        districtPages.push(
+    const productPages = [];
+    products.forEach((prod) => {
+      if (prod.slug) {
+        productPages.push(
           {
-            url:
-              `${baseUrl}/${slug}`,
-            lastModified:
-              new Date(),
+            url: `${baseUrl}/products/${prod.slug}`,
+            lastModified: new Date(),
           },
-
           {
-            url:
-              `${baseUrl}/${slug}/products`,
-            lastModified:
-              new Date(),
-          },
-
-          {
-            url:
-              `${baseUrl}/${slug}/services`,
-            lastModified:
-              new Date(),
-          },
-
-          {
-            url:
-              `${baseUrl}/${slug}/about`,
-            lastModified:
-              new Date(),
-          },
-
-          {
-            url:
-              `${baseUrl}/${slug}/contact`,
-            lastModified:
-              new Date(),
+            url: `${baseUrl}/items/${prod.slug}`,
+            lastModified: new Date(),
           }
         );
       }
-    );
+    });
 
-    return [
-      ...staticPages,
-      ...districtPages,
-    ];
+    return [...staticPages, ...districtPages, ...productPages];
   } catch (error) {
-    console.error(
-      "Sitemap Error:",
-      error
-    );
-
+    console.error("[sitemap] Error generating sitemap:", error);
     return staticPages;
   }
 }
-

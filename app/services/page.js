@@ -2,15 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { fetchServicesData, fetchDistrictData } from "@/lib/data-fetcher";
 import Link from "next/link";
+
 export default function Services() {
   const [services, setServices] = useState([]);
   const [validCity, setValidCity] = useState("");
 
   const pathname = usePathname();
-
   const pathParts = pathname.split("/").filter(Boolean);
 
   const reservedRoutes = [
@@ -24,8 +23,7 @@ export default function Services() {
 
   const currentCity =
     typeof window !== "undefined"
-      ? pathParts[0] &&
-        !reservedRoutes.includes(pathParts[0])
+      ? pathParts[0] && !reservedRoutes.includes(pathParts[0])
         ? pathParts[0]
         : ""
       : "";
@@ -33,61 +31,47 @@ export default function Services() {
   const formatCity = (name = "") =>
     name
       .split("-")
-      .map(
-        (w) =>
-          w.charAt(0).toUpperCase() + w.slice(1)
-      )
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
       .join(" ");
 
-  // 🔥 CHECK VALID CITY
+  // CHECK VALID CITY
   useEffect(() => {
+    let isMounted = true;
     const checkCity = async () => {
       if (!currentCity) {
-        setValidCity("");
+        if (isMounted) setValidCity("");
         return;
       }
 
       try {
-        const snap = await getDoc(
-          doc(
-            db,
-            "websites",
-            "globalbiomedicalorg",
-            "districts",
-            currentCity.toLowerCase()
-          )
-        );
-
-        if (snap.exists()) {
-
-          setValidCity(
-            formatCity(currentCity)
-          );
-
-        } else {
-
-          setValidCity("");
-
+        const snap = await fetchDistrictData(currentCity.toLowerCase());
+        if (isMounted) {
+          if (snap) {
+            setValidCity(formatCity(currentCity));
+          } else {
+            setValidCity("");
+          }
         }
       } catch (err) {
         console.error(err);
-        setValidCity("");
+        if (isMounted) setValidCity("");
       }
     };
 
     checkCity();
+    return () => {
+      isMounted = false;
+    };
   }, [currentCity]);
 
-  // 🔥 FETCH SERVICES
+  // FETCH SERVICES
   useEffect(() => {
+    let isMounted = true;
     const fetchData = async () => {
       try {
-        const snap = await getDoc(
-          doc(db, "websites", "globalbiomedicalsin", "pages", "services")
-        );
-
-        if (snap.exists()) {
-          setServices(snap.data().services || []);
+        const data = await fetchServicesData();
+        if (isMounted && data) {
+          setServices(data.services || []);
         }
       } catch (err) {
         console.error("Error fetching services:", err);
@@ -95,9 +79,12 @@ export default function Services() {
     };
 
     fetchData();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
-  // 🔥 ICONS
+  // ICONS
   const icons = [
     "bi-heart-pulse-fill",
     "bi-capsule",
@@ -109,7 +96,6 @@ export default function Services() {
 
   return (
     <div className="services-page">
-
       {/* HERO */}
       <section className="services-hero text-center">
         <div className="container">
@@ -129,29 +115,23 @@ export default function Services() {
       <section className="py-5">
         <div className="container">
           <div className="row g-4">
-
             {services.length === 0 ? (
               <p className="text-center">No Services Found</p>
             ) : (
               services.map((item, i) => (
                 <div className="col-md-4" key={i}>
                   <div className="service-card">
-
                     <i className={`bi ${icons[i % icons.length]}`}></i>
-
                     <h5>{item.title || "Service Title"}</h5>
                     <p>{item.desc || "Service Description"}</p>
-
                   </div>
                 </div>
               ))
             )}
-
           </div>
         </div>
       </section>
 
-      {/* CTA */}
       {/* CTA */}
       <section className="cta text-center">
         <div className="container">
@@ -175,7 +155,7 @@ export default function Services() {
         </div>
       </section>
 
-      {/* 🔥 STYLES */}
+      {/* STYLES */}
       <style jsx>{`
         .services-page {
           background: #f8fdfb;
@@ -213,7 +193,7 @@ export default function Services() {
 
         .service-card:hover {
           transform: translateY(-10px);
-          box-shadow: 0 25px 50px rgba(0,0,0,0.1);
+          box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
         }
 
         .service-card p {
@@ -235,7 +215,6 @@ export default function Services() {
           border-radius: 8px;
         }
       `}</style>
-
     </div>
   );
 }

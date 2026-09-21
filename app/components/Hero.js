@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { fetchHomeData } from "@/lib/data-fetcher";
 import Link from "next/link";
 
 export default function Hero({ city }) {
@@ -25,12 +24,9 @@ export default function Hero({ city }) {
       const startTime = Date.now();
 
       try {
-        const snap = await getDoc(
-          doc(db, "websites", "globalbiomedicalsin", "pages", "home")
-        );
-
-        if (snap.exists()) {
-          setData(snap.data());
+        const homeData = await fetchHomeData();
+        if (homeData) {
+          setData(homeData);
         }
       } catch (error) {
         console.error(error);

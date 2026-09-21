@@ -1,297 +1,139 @@
 import { NextResponse } from "next/server";
-import { adminDb } from "@/lib/firebase-admin";
+import { fetchFullCatalogRaw, fetchDistricts } from "@/lib/data-fetcher-server";
+import { getSiteConfig } from "@/lib/site-config";
 
-const WEBSITE = "globalbiomedicalsin";
-const DOMAIN = "https://globalbiomedicals.in";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export async function GET() {
-    try {
-        // Districts
-        const districtSnap = await adminDb
-            .collection("websites")
-            .doc(WEBSITE)
-            .collection("districts")
-            .get();
+  try {
+    const siteConfig = getSiteConfig();
+    const DOMAIN = siteConfig.domain;
+    const COMPANY_NAME = siteConfig.companyName;
 
-        const districts = districtSnap.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-        }));
+    const [products, districts] = await Promise.all([
+      fetchFullCatalogRaw(),
+      fetchDistricts(),
+    ]);
 
-        // Products Document
-        const productDoc = await adminDb
-            .collection("websites")
-            .doc(WEBSITE)
-            .collection("pages")
-            .doc("products")
-            .get();
+    // Group products by category
+    const categoriesMap = {};
+    products.forEach((prod) => {
+      const cat = prod.category || "General Products";
+      if (!categoriesMap[cat]) {
+        categoriesMap[cat] = [];
+      }
+      categoriesMap[cat].push(prod);
+    });
 
-        const productData = productDoc.exists ? productDoc.data() : {};
-
-        const products = productData.products || [];
-
-        // Categories
-        const categorySnap = await adminDb
-            .collection("websites")
-            .doc(WEBSITE)
-            .collection("pages")
-            .doc("categoryproducts")
-            .collection("categories")
-            .get();
-
-        const categories = categorySnap.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-        }));
-
-        // ===========================
-        // Published Products
-        // ===========================
-
-        const publishedProducts = products.filter(
-            (item) => item.isPublished === true
-        );
-
-        // ===========================
-        // Categories
-        // ===========================
-
-        const categoryText =
-            categories.length > 0
-                ? categories
-                    .map((cat) => {
-
-                        const productList =
-                            (cat.products || [])
-                                .map((item) => `- ${item.title}`)
-                                .join("\n");
-
-                        return `
-
-## ${cat.category}
-
-Category ID:
-${cat.id}
-
-Total Products:
-${cat.products?.length || 0}
-
-Products
-
-${productList || "No Products"}
-
-`;
-
-                    })
-                    .join("\n")
-                : "No Categories Found";
-
-        // ===========================
-        // Products
-        // ===========================
-
-        const productText =
-            publishedProducts.length > 0
-                ? publishedProducts
-                    .map((product) => {
-
-                        return `
-
-# ${product.title}
-
-Category:
-${product.category || "N/A"}
-
-Brand:
-${product.brand || "N/A"}
-
-Model:
-${product.model || "N/A"}
-
-Description:
-${product.desc || "No description available"}
-
-Instrument:
-${product.instrument || "N/A"}
-
-Automation:
-${product.automation || "N/A"}
-
-Usage:
-${product.usage || "N/A"}
-
-Throughput:
-${product.throughput || "N/A"}
-
-Capacity:
-${product.capacity || "N/A"}
-
-Availability:
-${product.availability || "N/A"}
-
-Price:
-${product.price || "Contact for Price"}
-
-Product URL:
-
-${DOMAIN}/products/${product.slug || product.id}
-
-
-
-
-${[product.title, product.brand, product.category, product.model,
-                            product.instrument,
-                            product.automation,
-                            product.usage,
-                            ]
-                                .filter(Boolean)
-                                .join(", ")
-                            }
-`;
-                    })
-                    .join("\n")
-                : "No Products Found";
-
-
-        // ===========================
-        // Districts
-        // ===========================
-
-        const districtText =
-            districts.length > 0
-                ? districts
-                    .map(
-                        (item) =>
-                            `${DOMAIN}/${item.slug}`
-                    )
-                    .join("\n")
-                : "No Districts Found";
-
-        // ===========================
-        // llms.txt
-        // ===========================
-
-        const content = `
-## Statistics
+    // Category Markdown
+    const categoryText = Object.entries(categoriesMap)
+      .map(([catName, list]) => {
+        const productList = list.map((item) => `- ${item.title || item.name}`).join("\n");
+        return `
+## ${catName}
+Total Products: ${list.length}
 
 Products:
-${publishedProducts.length}
+${productList || "No Products"}
+`;
+      })
+      .join("\n");
 
-Categories:
-${categories.length}
+    // Product Markdown
+    const productText =
+      products.length > 0
+        ? products
+            .map((product) => {
+              return `
+# ${product.title || product.name}
 
-Districts:
-${districts.length}
-# Global Biomedical
+Category: ${product.category || "N/A"}
+Subcategory: ${product.subCategory || "N/A"}
+Brand: ${product.brand || COMPANY_NAME}
+Model: ${product.model || "N/A"}
+Description: ${product.desc || product.description || "No description available"}
+Instrument: ${product.instrument || "N/A"}
+Automation: ${product.automation || "N/A"}
+Usage: ${product.usage || "N/A"}
+Throughput: ${product.throughput || "N/A"}
+Capacity: ${product.capacity || "N/A"}
+Availability: ${product.availability || "In Stock"}
+Price: ${product.price ? `₹${product.price}` : "Contact for Price"}
+Product URL: ${DOMAIN}/products/${product.slug || product.id}
+`;
+            })
+            .join("\n")
+        : "No Products Found";
 
-India's Trusted Biomedical Equipment Company
+    // District Markdown
+    const districtText =
+      districts.length > 0
+        ? districts.map((item) => `${DOMAIN}/${item.slug}`).join("\n")
+        : "No Districts Found";
 
-Website
+    const content = `
+## Statistics
+Products: ${products.length}
+Categories: ${Object.keys(categoriesMap).length}
+Districts: ${districts.length}
 
-${DOMAIN}
+# ${COMPANY_NAME}
+India's Trusted Biomedical and Laboratory Equipment Supplier
 
-Published Products
+Website: ${DOMAIN}
+Published Products: ${products.length}
+Categories: ${Object.keys(categoriesMap).length}
+District Pages: ${districts.length}
 
-${publishedProducts.length}
+## Company Overview
+${COMPANY_NAME} is a leading supplier of laboratory equipment, diagnostic analyzers, biomedical instruments, reagents, and healthcare equipment across India.
 
-Categories
-
-${categories.length}
-
-District Pages
-
-${districts.length}
-Company
-
-Global Biomedical is one of India's trusted Biomedical Equipment suppliers.
-
-Services
-
+## Services
 - Biomedical Equipment Supply
 - Laboratory Equipment
 - Diagnostic Equipment
-- Installation
-- AMC
-- Calibration
-- Repair
-- Technical Support
+- Installation & Setup
+- Annual Maintenance Contracts (AMC)
+- Calibration & Testing
+- Repair & Technical Support
 - Pan India Delivery
 
-Search Keywords
-
-Biomedical Equipment
-
-Laboratory Equipment
-
-Diagnostic Equipment
-
-Hospital Equipment
-
-Medical Equipment
-
-ICU Equipment
-
-Operation Theatre Equipment
-
-Biochemistry Analyzer
-
-Electrolyte Analyzer
-
-CLIA Analyzer
-
-Immunoassay Analyzer
 ------------------------------------------------
-
 ## Categories
-
-${categoryText}
+${categoryText || "No Categories Found"}
 
 ------------------------------------------------
-
 ## Products
-
 ${productText}
 
 ------------------------------------------------
-
 ## District Pages
-
 ${districtText}
 
 ------------------------------------------------
-
-Sitemap
-
-${DOMAIN}/sitemap.xml
-
-Robots
-
-${DOMAIN}/robots.txt
-
-Contact
-
-${DOMAIN}/contact
-Last Updated
-
-${new Date().toISOString()}
-
+Sitemap: ${DOMAIN}/sitemap.xml
+Robots: ${DOMAIN}/robots.txt
+Contact: ${DOMAIN}/contact
+Last Updated: ${new Date().toISOString()}
 `;
-        return new NextResponse(content, {
-            headers: {
-                "Content-Type": "text/plain; charset=utf-8",
-                "Cache-Control": "public,max-age=3600",
-            },
-        });
-    } catch (e) {
-        return NextResponse.json(
-            {
-                success: false,
-                error: e.message,
-            },
-            {
-                status: 500,
-            }
-        );
-    }
 
+    return new NextResponse(content, {
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+        "Cache-Control": "no-store, no-cache, must-revalidate",
+      },
+    });
+  } catch (e) {
+    console.error("[llms.txt] Error:", e);
+    return NextResponse.json(
+      {
+        success: false,
+        error: e.message,
+      },
+      {
+        status: 500,
+      }
+    );
+  }
 }

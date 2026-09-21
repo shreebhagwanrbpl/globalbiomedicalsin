@@ -20,6 +20,7 @@ import {
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { fetchFullCatalog } from "@/lib/data-fetcher";
+import { getSiteConfig } from "@/lib/site-config";
 import "./page.css";
 
 export default function ProductDetails({ slug, product: initialProduct }) {
@@ -55,33 +56,49 @@ export default function ProductDetails({ slug, product: initialProduct }) {
             setSelectedImage(initialProduct.images?.length > 0 ? initialProduct.images[0] : (initialProduct.image || ""));
             setSelectedMedia("image");
             setLoading(false);
-            return;
         }
 
-        const loadProduct = async () => {
+        const syncSingleProduct = async () => {
             try {
-                setLoading(true);
-                const allProducts = await fetchFullCatalog();
-                const found = allProducts.find((p) => p.slug === slug);
-
-                setProduct(found || null);
-
-                if (found) {
-                    if (found.images?.length > 0) {
-                        setSelectedImage(found.images[0]);
-                    } else {
-                        setSelectedImage(found.image || "");
+                const res = await fetch(`/api/catalog?t=${Date.now()}`, {
+                    cache: "no-store",
+                    headers: {
+                        "Cache-Control": "no-cache, no-store, must-revalidate",
+                        Pragma: "no-cache",
+                    },
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && Array.isArray(data.products)) {
+                        const found = data.products.find((p) => p.slug === slug);
+                        setProduct(found || null);
+                        if (found) {
+                            setSelectedImage((prev) => prev || (found.images?.length > 0 ? found.images[0] : (found.image || "")));
+                        }
                     }
-                    setSelectedMedia("image");
                 }
-            } catch (error) {
-                console.error("Error loading product details:", error);
+            } catch (err) {
+                // silent
             } finally {
                 setLoading(false);
             }
         };
 
-        loadProduct();
+        // If not initialProduct, load immediately
+        if (!initialProduct) {
+            syncSingleProduct();
+        }
+
+        const interval = setInterval(syncSingleProduct, 3000);
+        const handleFocus = () => syncSingleProduct();
+        window.addEventListener("focus", handleFocus);
+        document.addEventListener("visibilitychange", handleFocus);
+
+        return () => {
+            clearInterval(interval);
+            window.removeEventListener("focus", handleFocus);
+            document.removeEventListener("visibilitychange", handleFocus);
+        };
     }, [slug, initialProduct]);
 
     const handleSubmit = async (e) => {
@@ -105,15 +122,19 @@ export default function ProductDetails({ slug, product: initialProduct }) {
         try {
             setSubmitting(true);
 
+            const siteConfig = getSiteConfig();
+
             await addDoc(
                 collection(
                     db,
                     "websitesQueries",
-                    "globalbiomedicalorg",
+                    siteConfig.websiteDocId,
                     "productQueries"
                 ),
                 {
                     ...form,
+                    companyId: siteConfig.companyId,
+                    websiteId: siteConfig.websiteId,
                     productName: product.title,
                     productSlug: product.slug,
                     brand: product.brand || "",
@@ -703,40 +724,7 @@ export default function ProductDetails({ slug, product: initialProduct }) {
                         institutes and healthcare facilities.
                     </p>
 
-                    <h3>
-                        Specifications Table
-                    </h3>
 
-                    <table className="seo-table">
-                        <tbody>
-                            <tr>
-                                <td>Brand</td>
-                                <td>{product.brand || "N/A"}</td>
-                            </tr>
-                            <tr>
-                                <td>Model</td>
-                                <td>{product.model || "N/A"}</td>
-                            </tr>
-                            <tr>
-                                <td>Usage</td>
-                                <td>{product.usage || "N/A"}</td>
-                            </tr>
-                            <tr>
-                                <td>Automation</td>
-                                <td>{product.automation || "N/A"}</td>
-                            </tr>
-                            <tr>
-                                <td>Capacity</td>
-                                <td>{product.capacity || "N/A"}</td>
-                            </tr>
-                            {product.throughput && (
-                                <tr>
-                                    <td>Throughput</td>
-                                    <td>{product.throughput}</td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
 
                     <h3 className="mt-5">
                         Frequently Asked Questions

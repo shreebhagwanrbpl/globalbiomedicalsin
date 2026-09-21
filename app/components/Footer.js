@@ -3,8 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { db } from "@/lib/firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { fetchContactData, fetchDistrictData } from "@/lib/data-fetcher";
 export default function Footer() {
 
 
@@ -82,22 +81,12 @@ export default function Footer() {
 
 
   useEffect(() => {
+    let isMounted = true;
     const fetchContact = async () => {
       try {
-        const snap = await getDoc(
-          doc(
-            db,
-            "websites",
-            "globalbiomedicalsin",
-            "pages",
-            "contact"
-          )
-        );
-
-        if (snap.exists()) {
-          setContactInfo(
-            snap.data().contactInfo || []
-          );
+        const data = await fetchContactData();
+        if (isMounted && data) {
+          setContactInfo(data.contactInfo || []);
         }
       } catch (err) {
         console.log(err);
@@ -105,55 +94,40 @@ export default function Footer() {
     };
 
     fetchContact();
+    return () => {
+      isMounted = false;
+    };
   }, []);
+
   useEffect(() => {
-
+    let isMounted = true;
     const loadDistrict = async () => {
-
       if (!district) {
         setValidCity(false);
         return;
       }
 
       try {
-
-        const snap = await getDoc(
-          doc(
-            db,
-            "websites",
-            "globalbiomedicalorg",
-            "districts",
-            citySlug
-          )
-        );
-
-        if (snap.exists()) {
-
-          setValidCity(true);
-
-          setStateName(
-            snap.data()?.state || ""
-          );
-
-        } else {
-
-          setValidCity(false);
-          setStateName("");
-
+        const data = await fetchDistrictData(citySlug);
+        if (isMounted) {
+          if (data) {
+            setValidCity(true);
+            setStateName(data?.state || "");
+          } else {
+            setValidCity(false);
+            setStateName("");
+          }
         }
-
       } catch (err) {
-
         console.log(err);
-
-        setValidCity(false);
-
+        if (isMounted) setValidCity(false);
       }
-
     };
 
     loadDistrict();
-
+    return () => {
+      isMounted = false;
+    };
   }, [citySlug, district]);
   return (
     <footer className="footer">

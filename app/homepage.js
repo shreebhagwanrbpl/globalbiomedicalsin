@@ -7,7 +7,7 @@ import {
   collection,
   getDocs,
 } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { fetchFullCatalog, fetchServicesData } from "@/lib/data-fetcher";
 import Link from "next/link";
 
 
@@ -86,101 +86,44 @@ export default function Home({ city }) {
 
   const cityName = formatCity(currentCity);
   useEffect(() => {
+    let isMounted = true;
     const fetchProducts = async () => {
       try {
-        let allProducts = [];
-
-        // Category Products
-        const categorySnap = await getDocs(
-          collection(
-            db,
-            "websites",
-            "globalbiomedicalsin",
-            "pages",
-            "categoryproducts",
-            "categories"
-          )
-        );
-
-        for (const categoryDoc of categorySnap.docs) {
-          const categoryData = categoryDoc.data();
-
-          // Direct category products
-          if (Array.isArray(categoryData.products)) {
-            allProducts.push(
-              ...categoryData.products.filter(
-                (p) => p.isPublished !== false
-              )
-            );
-          }
-
-          // Subcategory products
-          const subSnap = await getDocs(
-            collection(categoryDoc.ref, "subcategories")
-          );
-
-          subSnap.forEach((subDoc) => {
-            const subData = subDoc.data();
-
-            if (Array.isArray(subData.products)) {
-              allProducts.push(
-                ...subData.products.filter(
-                  (p) => p.isPublished !== false
-                )
-              );
-            }
-          });
-        }
-
-        // Agar category products mil gaye
-        if (allProducts.length > 0) {
-          setProducts(allProducts);
-          setLoadingProducts(false);
-          return;
-        }
-        // Fallback → Old products document
-        const oldSnap = await getDoc(
-          doc(
-            db,
-            "websites",
-            "globalbiomedicalsin",
-            "pages",
-            "products"
-          )
-        );
-
-        if (oldSnap.exists()) {
-          const data = oldSnap.data().products || [];
-
-          setProducts(
-            data.filter((p) => p.isPublished !== false)
-          );
-
+        setLoadingProducts(true);
+        const allProducts = await fetchFullCatalog();
+        if (isMounted) {
+          setProducts(allProducts || []);
           setLoadingProducts(false);
         }
       } catch (err) {
-        console.error(err);
+        console.error("[homepage] fetchProducts error:", err);
+        if (isMounted) setLoadingProducts(false);
       }
     };
 
     fetchProducts();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   useEffect(() => {
+    let isMounted = true;
     const fetchData = async () => {
-      const snap = await getDoc(
-        doc(db, "websites", "globalbiomedicalsin", "pages", "services")
-      );
-
-      if (snap.exists()) {
-        const data = snap.data().services || [];
-
-        // 🔥 sirf first 3
-        setServices(data.slice(0, 3));
+      try {
+        const data = await fetchServicesData();
+        if (isMounted && data && Array.isArray(data.services)) {
+          setServices(data.services.slice(0, 3));
+        }
+      } catch (e) {
+        // ignore
       }
     };
 
     fetchData();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const icons = [

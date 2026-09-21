@@ -1,20 +1,15 @@
 "use client";
+
 import toast, { Toaster } from "react-hot-toast";
 import "./contact.css";
 import { useState, useEffect } from "react";
 import { db } from "@/lib/firebase";
-import {
-  addDoc,
-  collection,
-  serverTimestamp,
-  doc,
-  getDoc
-} from "firebase/firestore";
+import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { usePathname } from "next/navigation";
-
+import { fetchContactData, fetchDistrictData } from "@/lib/data-fetcher";
+import { getSiteConfig } from "@/lib/site-config";
 
 export default function Contact() {
-
   const [loading, setLoading] = useState(true);
   const [stateName, setStateName] = useState("");
   const [validCity, setValidCity] = useState("");
@@ -23,39 +18,38 @@ export default function Contact() {
     email: "",
     phone: "",
     subject: "",
-    message: ""
+    message: "",
   });
 
   const [contactInfo, setContactInfo] = useState([]);
 
-  // 🔥 FETCH CONTACT INFO
+  // FETCH CONTACT INFO
   useEffect(() => {
+    let isMounted = true;
     const load = async () => {
       try {
-        const snap = await getDoc(
-          doc(db, "websites", "globalbiomedicalsin", "pages", "contact")
-        );
-
-        if (snap.exists()) {
-          setContactInfo(snap.data().contactInfo || []);
-        } else {
-          setContactInfo([]);
+        const data = await fetchContactData();
+        if (isMounted) {
+          if (data && Array.isArray(data.contactInfo)) {
+            setContactInfo(data.contactInfo);
+          } else {
+            setContactInfo([]);
+          }
         }
       } catch (err) {
         console.error(err);
       }
-
-      setLoading(false);
+      if (isMounted) setLoading(false);
     };
 
     load();
+    return () => {
+      isMounted = false;
+    };
   }, []);
-  // current city
-  const pathname = usePathname();
 
-  const pathParts = pathname
-    .split("/")
-    .filter(Boolean);
+  const pathname = usePathname();
+  const pathParts = pathname.split("/").filter(Boolean);
 
   const reservedRoutes = [
     "about",
@@ -67,147 +61,101 @@ export default function Contact() {
   ];
 
   const currentCity =
-    pathParts[0] &&
-      !reservedRoutes.includes(pathParts[0])
-      ? pathParts[0]
-      : "";
+    pathParts[0] && !reservedRoutes.includes(pathParts[0]) ? pathParts[0] : "";
 
-  // format city
-
-
-  // format cityx`
   const formatCity = (name = "") =>
     name
       .split("-")
-      .map(
-        (w) =>
-          w.charAt(0).toUpperCase() + w.slice(1)
-      )
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
       .join(" ");
 
-
-  const cityName = formatCity(currentCity);
   useEffect(() => {
-
+    let isMounted = true;
     const checkCity = async () => {
-
       if (!currentCity) {
-
-        setValidCity("");
-        setStateName("");
-
+        if (isMounted) {
+          setValidCity("");
+          setStateName("");
+        }
         return;
       }
 
       try {
-
-        const snap = await getDoc(
-          doc(
-            db,
-            "websites",
-            "globalbiomedicalorg",
-            "districts",
-            currentCity.toLowerCase()
-          )
-        );
-
-        if (snap.exists()) {
-
-          setValidCity(
-            formatCity(currentCity)
-          );
-
-          setStateName(
-            snap.data()?.state || ""
-          );
-
-        } else {
-
+        const snap = await fetchDistrictData(currentCity.toLowerCase());
+        if (isMounted) {
+          if (snap) {
+            setValidCity(formatCity(currentCity));
+            setStateName(snap?.state || "");
+          } else {
+            setValidCity("");
+            setStateName("");
+          }
+        }
+      } catch (err) {
+        console.log(err);
+        if (isMounted) {
           setValidCity("");
           setStateName("");
-
         }
-
-      } catch (err) {
-
-        console.log(err);
-
-        setValidCity("");
-        setStateName("");
-
       }
     };
 
     checkCity();
-
+    return () => {
+      isMounted = false;
+    };
   }, [currentCity]);
-  // ✅ FIXED CHANGE HANDLER
+
   const handleChange = (e) => {
     setForm({
       ...form,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
-  // 🔥 SUBMIT
   const handleSubmit = async () => {
-
-    // validation
     const { name, email, phone, message } = form;
 
-    if (
-      !name.trim() ||
-      !email.trim() ||
-      !phone.trim() ||
-      !message.trim()
-    ) {
+    if (!name.trim() || !email.trim() || !phone.trim() || !message.trim()) {
       return toast.error("Fill all fields");
     }
     const phoneRegex = /^[6-9]\d{9}$/;
 
     if (!phoneRegex.test(phone)) {
-      return toast.error(
-        "Please enter a valid 10 digit mobile number"
-      );
+      return toast.error("Please enter a valid 10 digit mobile number");
     }
-    const emailRegex =
-      /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!emailRegex.test(email)) {
-      return toast.error(
-        "Please enter a valid email address"
-      );
+      return toast.error("Please enter a valid email address");
     }
+
     try {
+      const siteConfig = getSiteConfig();
       await addDoc(
-        collection(db, "websitesQueries", "globalbiomedicalsin", "contactQueries"),
+        collection(db, "websitesQueries", siteConfig.websiteDocId, "contactQueries"),
         {
           ...form,
-          createdAt: serverTimestamp()
+          companyId: siteConfig.companyId,
+          websiteId: siteConfig.websiteId,
+          createdAt: serverTimestamp(),
         }
       );
 
-
       toast.success("Message sent");
 
-      // reset
       setForm({
         name: "",
         email: "",
         phone: "",
         subject: "",
-        message: ""
+        message: "",
       });
-
     } catch (err) {
       console.error(err);
       toast.error("Failed to send");
     }
   };
-
-
-
-
 
   return (
     <div className="contact-page">
@@ -228,10 +176,8 @@ export default function Contact() {
       <section className="py-5">
         <div className="container">
           <div className="row g-5">
-
             {/* LEFT */}
             <div className="col-lg-5">
-
               <h4 className="fw-bold mb-3">Get In Touch</h4>
 
               <p className="text-muted">
@@ -239,7 +185,6 @@ export default function Contact() {
               </p>
 
               <div className="contact-info mt-4">
-
                 {loading ? (
                   <p className="text-muted">Loading...</p>
                 ) : contactInfo.length === 0 ? (
@@ -247,36 +192,33 @@ export default function Contact() {
                 ) : (
                   contactInfo.map((item, i) => (
                     <div className="info-box" key={i}>
-
-                      <i className={
-                        item.label.toLowerCase().includes("address")
-                          ? "bi bi-geo-alt"
-                          : item.label.toLowerCase().includes("email")
+                      <i
+                        className={
+                          item.label.toLowerCase().includes("address")
+                            ? "bi bi-geo-alt"
+                            : item.label.toLowerCase().includes("email")
                             ? "bi bi-envelope"
                             : item.label.toLowerCase().includes("phone")
-                              ? "bi bi-telephone"
-                              : "bi bi-info-circle"
-                      }></i>
+                            ? "bi bi-telephone"
+                            : "bi bi-info-circle"
+                        }
+                      ></i>
 
                       <div>
                         <strong>{item.label}</strong>
                         <p>
-                          {
-                            item.label.toLowerCase().includes("address")
-                              ? validCity && validCity.toLowerCase() !== "jaipur"
-                                ? stateName
-                                  ? `${validCity}, ${stateName}, India`
-                                  : `${validCity}, India`
-                                : item.value
+                          {item.label.toLowerCase().includes("address")
+                            ? validCity && validCity.toLowerCase() !== "jaipur"
+                              ? stateName
+                                ? `${validCity}, ${stateName}, India`
+                                : `${validCity}, India`
                               : item.value
-                          }
+                            : item.value}
                         </p>
                       </div>
-
                     </div>
                   ))
                 )}
-
               </div>
             </div>
 
@@ -316,19 +258,19 @@ export default function Contact() {
                       onChange={(e) =>
                         setForm({
                           ...form,
-                          phone: e.target.value.replace(/\D/g, "")
+                          phone: e.target.value.replace(/\D/g, ""),
                         })
                       }
                     />
                   </div>
 
                   <div className="col-md-6">
-                    <textarea
-                      name="message"
-                      rows="4"
+                    <input
+                      type="text"
+                      name="subject"
                       className="input-field"
-                      placeholder="Your Message"
-                      value={form.message}
+                      placeholder="Subject"
+                      value={form.subject}
                       onChange={handleChange}
                     />
                   </div>
@@ -351,11 +293,8 @@ export default function Contact() {
                     Send Message
                   </button>
                 </div>
-
               </div>
-
             </div>
-
           </div>
         </div>
       </section>
@@ -364,12 +303,13 @@ export default function Contact() {
       <section className="map-section">
         <div className="container-fluid p-0">
           <iframe
-            src={`https://maps.google.com/maps?q=${validCity
-              ? stateName
-                ? `${validCity}, ${stateName}, India`
-                : `${validCity}, India`
-              : "Amrapali , Vaishali Nagar , Jaipur, India, 302021"
-              }&output=embed`}
+            src={`https://maps.google.com/maps?q=${
+              validCity
+                ? stateName
+                  ? `${validCity}, ${stateName}, India`
+                  : `${validCity}, India`
+                : "Amrapali , Vaishali Nagar , Jaipur, India, 302021"
+            }&output=embed`}
             width="100%"
             height="400"
             style={{ border: 0 }}

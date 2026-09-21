@@ -150,10 +150,59 @@ export default function ProductsClient({ initialProducts = [], district = null, 
   const [pendingScroll, setPendingScroll] = useState(null);
   const [showTopButton, setShowTopButton] = useState(false);
   const [activeSubCategory, setActiveSubCategory] = useState("");
-  // Client-side fallback to fetch products if server cache is empty (e.g. built offline)
+  // Client-side state init
   useEffect(() => {
     setProducts(initialProducts || []);
   }, [initialProducts]);
+
+  // Real-time live synchronization (every 3 seconds & on window focus/tab switch)
+  const syncProducts = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/catalog?t=${Date.now()}`, {
+        cache: "no-store",
+        headers: {
+          "Cache-Control": "no-cache, no-store, must-revalidate",
+          Pragma: "no-cache",
+        },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data && Array.isArray(data.products)) {
+          setProducts(data.products);
+        }
+      }
+    } catch (err) {
+      console.warn("[ProductsClient] Live sync poll failed:", err);
+    }
+  }, []);
+
+  useEffect(() => {
+    // Immediate background check on mount
+    syncProducts();
+
+    // 3-second live sync interval for zero-delay instant updates
+    const interval = setInterval(syncProducts, 3000);
+
+    // Immediate sync on window focus / tab switch
+    const handleFocus = () => {
+      syncProducts();
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        syncProducts();
+      }
+    };
+
+    window.addEventListener("focus", handleFocus);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("focus", handleFocus);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [syncProducts]);
 
   // Debounce search term updates to make search typing instant
   useEffect(() => {
@@ -309,9 +358,24 @@ export default function ProductsClient({ initialProducts = [], district = null, 
       }
     }
   }, []);
-  const visibleCategories = openedCategory
-    ? [[openedCategory, sortedGroupedProducts[openedCategory]]]
-    : Object.entries(sortedGroupedProducts);
+  // If active category has no products (e.g. unassigned from admin), adapt openedCategory
+  useEffect(() => {
+    const categoryKeys = Object.keys(sortedGroupedProducts);
+    if (categoryKeys.length > 0) {
+      if (!openedCategory || !sortedGroupedProducts[openedCategory]) {
+        setOpenedCategory(categoryKeys[0]);
+      }
+    } else {
+      setOpenedCategory("");
+    }
+  }, [sortedGroupedProducts, openedCategory]);
+
+  const visibleCategories = useMemo(() => {
+    if (openedCategory && sortedGroupedProducts[openedCategory]) {
+      return [[openedCategory, sortedGroupedProducts[openedCategory]]];
+    }
+    return Object.entries(sortedGroupedProducts);
+  }, [openedCategory, sortedGroupedProducts]);
   return (
     <>
       <script
@@ -486,9 +550,15 @@ export default function ProductsClient({ initialProducts = [], district = null, 
                   </button>
                 </div>
               ) : (
+                visibleCategories.map(([category, subcategoriesObj]) => {
+                  if (!subcategoriesObj || typeof subcategoriesObj !== "object") return null;
+                  const subcatValues = Object.values(subcategoriesObj);
+                  const totalCatCount = subcatValues.reduce(
+                    (sum, list) => sum + (Array.isArray(list) ? list.length : 0),
+                    0
+                  );
 
-                visibleCategories.map(
-                  ([category, subcategoriesObj]) => (
+                  return (
                     <section
                       key={category}
                       id={category.replace(/\s+/g, "-").toLowerCase()}
@@ -498,11 +568,8 @@ export default function ProductsClient({ initialProducts = [], district = null, 
                       <div className="section-title">
                         <h3>{category}</h3>
                         <span>
-                          {Object.values(subcategoriesObj).reduce(
-                            (sum, list) => sum + list.length,
-                            0
-                          )}{" "}
-                          Products
+                          {totalCatCount}{" "}
+                          {totalCatCount === 1 ? "Product" : "Products"}
                         </span>
                       </div>
 
@@ -510,107 +577,110 @@ export default function ProductsClient({ initialProducts = [], district = null, 
                       {openedCategory === category && (
                         <div className="space-y-12">
                           {Object.entries(subcategoriesObj).map(
-                            (([subCategory, list]) => (
-                              <div key={subCategory} className="space-y-6">
-                                {/* Subcategory Heading */}
-                                <div
-                                  id={`${category}-${subCategory}`}
-                                  className="flex items-center gap-3"
-                                >
-                                  <h3 className="text-xl font-bold text-slate-800 uppercase tracking-wide">
-                                    {subCategory}
-                                  </h3>
-                                  <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600">
-                                    {list.length}{" "}
-                                    {list.length === 1 ? "Product" : "Products"}
-                                  </span>
-                                </div>
+                            ([subCategory, list]) => {
+                              if (!Array.isArray(list) || list.length === 0) return null;
+                              return (
+                                <div key={subCategory} className="space-y-6">
+                                  {/* Subcategory Heading */}
+                                  <div
+                                    id={`${category}-${subCategory}`}
+                                    className="flex items-center gap-3"
+                                  >
+                                    <h3 className="text-xl font-bold text-slate-800 uppercase tracking-wide">
+                                      {subCategory}
+                                    </h3>
+                                    <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600">
+                                      {list.length}{" "}
+                                      {list.length === 1 ? "Product" : "Products"}
+                                    </span>
+                                  </div>
 
-                                {/* Product List */}
-                                <div className="space-y-8">
-                                  {list.slice(0, 12).map((product) => (
-                                    <div
-                                      key={product.uid}
-                                      id={product.slug}
-                                      className="product-list-card text-start"
-                                    >
-                                      <div className="row align-items-center">
-                                        {/* IMAGE */}
-                                        <div className="col-lg-3 col-md-4">
-                                          <div className="list-image">
-                                            <img
-                                              src={product.images?.[0] || product.image || "/placeholder.jpg"}
-                                              alt={product.title}
-                                              onError={(e) => {
-                                                e.currentTarget.src = "/placeholder.jpg";
-                                              }}
-                                            />
+                                  {/* Product List */}
+                                  <div className="space-y-8">
+                                    {list.slice(0, 12).map((product) => (
+                                      <div
+                                        key={product.uid}
+                                        id={product.slug}
+                                        className="product-list-card text-start"
+                                      >
+                                        <div className="row align-items-center">
+                                          {/* IMAGE */}
+                                          <div className="col-lg-3 col-md-4">
+                                            <div className="list-image">
+                                              <img
+                                                src={product.images?.[0] || product.image || "/placeholder.jpg"}
+                                                alt={product.title}
+                                                onError={(e) => {
+                                                  e.currentTarget.src = "/placeholder.jpg";
+                                                }}
+                                              />
+                                            </div>
                                           </div>
-                                        </div>
 
-                                        {/* CONTENT */}
-                                        <div className="col-lg-6 col-md-5">
-                                          <div className="list-content">
-                                            <h4 className="fw-bold">{product.title}</h4>
-                                            <p>
-                                              {product.description ||
-                                                product.desc ||
-                                                "Premium laboratory and diagnostic medical equipment."}
-                                            </p>
+                                          {/* CONTENT */}
+                                          <div className="col-lg-6 col-md-5">
+                                            <div className="list-content">
+                                              <h4 className="fw-bold">{product.title}</h4>
+                                              <p>
+                                                {product.description ||
+                                                  product.desc ||
+                                                  "Premium laboratory and diagnostic medical equipment."}
+                                              </p>
 
-                                            <div className="spec-grid">
-                                              <div>
-                                                <b>Brand</b>
-                                                <span>{product.brand || "-"}</span>
-                                              </div>
-                                              <div>
-                                                <b>Model</b>
-                                                <span>{product.model || "-"}</span>
-                                              </div>
-                                              {product.instrument && (
+                                              <div className="spec-grid">
                                                 <div>
-                                                  <b>Instrument</b>
-                                                  <span>{product.instrument}</span>
+                                                  <b>Brand</b>
+                                                  <span>{product.brand || "-"}</span>
                                                 </div>
-                                              )}
-                                              {product.usage && (
                                                 <div>
-                                                  <b>Usage</b>
-                                                  <span>{product.usage}</span>
+                                                  <b>Model</b>
+                                                  <span>{product.model || "-"}</span>
                                                 </div>
-                                              )}
+                                                {product.instrument && (
+                                                  <div>
+                                                    <b>Instrument</b>
+                                                    <span>{product.instrument}</span>
+                                                  </div>
+                                                )}
+                                                {product.usage && (
+                                                  <div>
+                                                    <b>Usage</b>
+                                                    <span>{product.usage}</span>
+                                                  </div>
+                                                )}
+                                              </div>
+                                            </div>
+                                          </div>
+
+                                          {/* BUTTON */}
+                                          <div className="col-lg-3 col-md-3 text-center">
+                                            <div className="product-action">
+                                              <button
+                                                className="btn-view cursor-pointer"
+                                                onClick={() => {
+                                                  const targetUrl = district
+                                                    ? `/${district}/items/${product.slug}`
+                                                    : `/products/${product.slug}`;
+                                                  router.push(targetUrl);
+                                                }}
+                                              >
+                                                View Details
+                                              </button>
                                             </div>
                                           </div>
                                         </div>
-
-                                        {/* BUTTON */}
-                                        <div className="col-lg-3 col-md-3 text-center">
-                                          <div className="product-action">
-                                            <button
-                                              className="btn-view cursor-pointer"
-                                              onClick={() => {
-                                                const targetUrl = district
-                                                  ? `/${district}/items/${product.slug}`
-                                                  : `/products/${product.slug}`;
-                                                router.push(targetUrl);
-                                              }}
-                                            >
-                                              View Details
-                                            </button>
-                                          </div>
-                                        </div>
                                       </div>
-                                    </div>
-                                  ))}
+                                    ))}
+                                  </div>
                                 </div>
-                              </div>
-                            ))
+                              );
+                            }
                           )}
                         </div>
                       )}
                     </section>
-                  )
-                )
+                  );
+                })
               )}
             </div>
 

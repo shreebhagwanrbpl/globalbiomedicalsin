@@ -1,7 +1,13 @@
 import Products from "@/app/products/page";
+import { getSiteConfig } from "@/lib/site-config";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+export const fetchCache = "force-no-store";
 
 export async function generateMetadata({ params }) {
   const resolvedParams = await params;
+  const siteConfig = getSiteConfig();
 
   const district = resolvedParams?.district || "jaipur";
 
@@ -9,13 +15,12 @@ export async function generateMetadata({ params }) {
     .replace(/-/g, " ")
     .replace(/\b\w/g, (char) => char.toUpperCase());
 
-  const url = `https://globalbiomedicals.in/${district}/products`;
+  const url = `${siteConfig.domain}/${district}/items`;
 
   return {
-    title: `Laboratory Equipment, Biomedical Products & Diagnostic Instruments in ${city} | Global Biomedical`,
+    title: `Laboratory Equipment, Biomedical Products & Diagnostic Instruments in ${city} | ${siteConfig.companyName}`,
 
-    description:
-      `Global Biomedical supplies premium laboratory equipment, biomedical instruments, electrolyte analyzers, diagnostic devices, laboratory reagents, medical equipment, hospital equipment, and laboratory consumables in ${city}. Trusted by hospitals, pathology labs, diagnostic centres, and research laboratories.`,
+    description: `${siteConfig.companyName} supplies premium laboratory equipment, biomedical instruments, electrolyte analyzers, diagnostic devices, laboratory reagents, medical equipment, hospital equipment, and laboratory consumables in ${city}. Trusted by hospitals, pathology labs, diagnostic centres, and research laboratories.`,
 
     keywords: [
       `Laboratory Equipment ${city}`,
@@ -36,8 +41,8 @@ export async function generateMetadata({ params }) {
       `Medical Devices ${city}`,
       `Healthcare Equipment ${city}`,
       `Lab Equipment Dealer ${city}`,
-      `Global Biomedical ${city}`,
-      `Global Biomedical Products`,
+      `${siteConfig.companyName} ${city}`,
+      `${siteConfig.companyName} Products`,
     ],
 
     alternates: {
@@ -45,11 +50,10 @@ export async function generateMetadata({ params }) {
     },
 
     openGraph: {
-      title: `Laboratory Equipment & Biomedical Products in ${city} | Global Biomedical`,
-      description:
-        `Browse premium laboratory equipment, diagnostic analyzers, biomedical instruments, laboratory reagents, and hospital equipment in ${city}.`,
+      title: `Laboratory Equipment & Biomedical Products in ${city} | ${siteConfig.companyName}`,
+      description: `Browse premium laboratory equipment, diagnostic analyzers, biomedical instruments, laboratory reagents, and hospital equipment in ${city}.`,
       url,
-      siteName: "Global Biomedical",
+      siteName: siteConfig.companyName,
       locale: "en_IN",
       type: "website",
       images: [
@@ -57,23 +61,21 @@ export async function generateMetadata({ params }) {
           url: "/og-image.jpg",
           width: 1200,
           height: 630,
-          alt: `Global Biomedical Products ${city}`,
+          alt: `${siteConfig.companyName} Products ${city}`,
         },
       ],
     },
 
     twitter: {
       card: "summary_large_image",
-      title: `Biomedical Products in ${city} | Global Biomedical`,
-      description:
-        `Trusted supplier of laboratory equipment, analyzers, biomedical instruments, and reagents in ${city}.`,
+      title: `Biomedical Products in ${city} | ${siteConfig.companyName}`,
+      description: `Trusted supplier of laboratory equipment, analyzers, biomedical instruments, and reagents in ${city}.`,
       images: ["/og-image.jpg"],
     },
 
     robots: {
       index: true,
       follow: true,
-      nocache: false,
       googleBot: {
         index: true,
         follow: true,
@@ -96,5 +98,5 @@ export default async function Page({ params }) {
     .replace(/-/g, " ")
     .replace(/\b\w/g, (char) => char.toUpperCase());
 
-  return <Products city={city} />;
+  return <Products district={district} city={city} />;
 }

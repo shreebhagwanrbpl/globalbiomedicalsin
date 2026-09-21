@@ -2,64 +2,35 @@
 
 import { use, useEffect, useState } from "react";
 import Home from "../homepage";
-import { db } from "@/lib/firebase";
-import { doc, getDoc } from "firebase/firestore";
-
-
+import { fetchDistrictData } from "@/lib/data-fetcher";
 
 export default function Page({ params }) {
-  // ✅ unwrap params Promise
   const resolvedParams = use(params);
-
-  const district =
-    resolvedParams?.district || "";
-
-  const [city, setCity] =
-    useState("");
+  const district = resolvedParams?.district || "";
+  const [city, setCity] = useState("");
 
   useEffect(() => {
-
     const checkDistrict = async () => {
-
       let validDistrict = district;
-
       try {
-
-        const snap = await getDoc(
-          doc(
-            db,
-            "websites",
-            "indiandiagnostic",
-            "districts",
-            district
-          )
-        );
-
-        // ❌ invalid district
-        if (!snap.exists()) {
-          validDistrict = "";
+        const snapData = await fetchDistrictData(district);
+        if (!snapData && district) {
+          // fallback to formatting district name
+          validDistrict = district;
         }
-
       } catch (err) {
-
-        validDistrict = "";
-
+        validDistrict = district;
       }
 
-      const formatted = validDistrict
+      const formatted = (validDistrict || "")
         .replace(/-/g, " ")
-        .replace(/\b\w/g, (char) =>
-          char.toUpperCase()
-        );
+        .replace(/\b\w/g, (char) => char.toUpperCase());
 
       setCity(formatted);
-
     };
 
     checkDistrict();
-
   }, [district]);
 
   return <Home city={city} />;
-
 }
