@@ -1,4 +1,5 @@
 "use client";
+
 import Hero from "./components/Hero";
 import { useEffect, useState } from "react";
 import {
@@ -10,69 +11,13 @@ import {
 import { fetchFullCatalog, fetchServicesData } from "@/lib/data-fetcher";
 import Link from "next/link";
 
-
-
-export const metadata = {
-  title:
-    "Laboratory Equipment Supplier in India | Global Biomedicals",
-
-  description:
-    "Global Biomedicals is a trusted laboratory equipment supplier in India providing pathology machines, biomedical products, diagnostic instruments and hospital lab equipment.",
-
-  keywords: [
-    "laboratory equipment supplier india",
-    "pathology equipment supplier",
-    "diagnostic instruments supplier",
-    "biomedical products india",
-    "hospital equipment supplier",
-    "medical lab equipment india",
-    "laboratory products supplier",
-  ],
-
-  robots: {
-    index: true,
-    follow: true,
-  },
-
-  alternates: {
-    canonical:
-      "https://globalbiomedicalsin.com",
-  },
-
-  openGraph: {
-    title:
-      "Laboratory Equipment Supplier in India",
-    description:
-      "Trusted supplier of biomedical products and pathology machines across India.",
-
-    url:
-      "https://globalbiomedicalsin.com",
-
-    siteName:
-      "Global Biomedicals",
-
-    images: [
-      {
-        url:
-          "https://globalbiomedicalsin.com/globallogo.png",
-        width: 1200,
-        height: 630,
-      },
-    ],
-
-    locale: "en_IN",
-    type: "website",
-  },
-};
-
 export default function Home({ city }) {
   const [services, setServices] = useState([]);
   const [products, setProducts] = useState([]);
   const [loadingProducts, setLoadingProducts] = useState(true);
-  // current city
+
   const currentCity = city || "";
 
-  // format city
   const formatCity = (name = "") =>
     name
       .split("-")
@@ -83,8 +28,46 @@ export default function Home({ city }) {
       .join(" ");
 
   const citySlug = currentCity;
-
   const cityName = formatCity(currentCity);
+
+  const categoryCards = [
+    {
+      title: "ICU & OT Equipment",
+      description: "Patient Monitors, Ventilators, OT Lights, Defibrillators & Anesthesia Workstations",
+      icon: "bi-heart-pulse-fill",
+      color: "#0284c7",
+      link: "/products?category=ICU%20%26%20Operation%20Theatre%20Equipment"
+    },
+    {
+      title: "Diagnostic & Lab Analyzers",
+      description: "Biochemistry, Hematology Cell Counters, Electrolyte & Urine Analyzers",
+      icon: "bi-flask-fill",
+      color: "#16a34a",
+      link: "/products?category=Diagnostic%20%26%20Laboratory%20Analyzers"
+    },
+    {
+      title: "Biomedical Instruments",
+      description: "ECG Machines, Microscopes, Autoclaves, Centrifuges & Sterilizers",
+      icon: "bi-shield-check",
+      color: "#9333ea",
+      link: "/products?category=Biomedical%20%26%20Clinical%20Instruments"
+    },
+    {
+      title: "Hospital Furniture",
+      description: "ICU Beds, Examination Tables, Stretcher Beds & Crash Carts",
+      icon: "bi-hospital-fill",
+      color: "#ea580c",
+      link: "/products?category=Hospital%20Furniture%20%26%20Patient%20Care"
+    },
+    {
+      title: "Reagents & Disposables",
+      description: "Diagnostic Reagents, Rapid Test Kits, Surgical Consumables & Lab Disposables",
+      icon: "bi-box-seam-fill",
+      color: "#059669",
+      link: "/products?category=Medical%20Consumables%20%26%20Reagents"
+    }
+  ];
+
   useEffect(() => {
     let isMounted = true;
     const fetchProducts = async () => {
@@ -135,12 +118,50 @@ export default function Home({ city }) {
   return (
     <>
       <Hero city={city} />
+
+      {/* CATEGORIES SECTION (4-5 CATEGORIES WITH DIRECT CLICK NAVIGATION) */}
+      <section className="py-5 bg-white border-bottom">
+        <div className="container text-center">
+          <span className="badge bg-success-subtle text-success border border-success mb-2 px-3 py-1 rounded-pill fw-semibold">
+            Product Categories
+          </span>
+          <h2 className="fw-bold mb-3 text-dark">
+            Explore Medical & Laboratory Solutions
+          </h2>
+          <p className="text-secondary mb-5 mx-auto" style={{ maxWidth: "680px" }}>
+            Click on any category to view specialized equipment, technical specifications, and place inquiries directly with <strong>Global Biomedical LLP</strong>.
+          </p>
+
+          <div className="row g-4 justify-content-center">
+            {categoryCards.map((cat, idx) => (
+              <div key={idx} className="col-12 col-sm-6 col-lg-4">
+                <Link href={citySlug ? `/${citySlug}${cat.link}` : cat.link} className="text-decoration-none">
+                  <div className="category-card p-4 rounded-4 h-100 border text-start transition-all shadow-sm">
+                    <div
+                      className="category-icon-box rounded-3 d-flex align-items-center justify-content-center mb-3"
+                      style={{ width: "54px", height: "54px", background: `${cat.color}15`, color: cat.color }}
+                    >
+                      <i className={`bi ${cat.icon} fs-3`}></i>
+                    </div>
+
+                    <h5 className="fw-bold text-dark mb-2 d-flex justify-content-between align-items-center">
+                      <span>{cat.title}</span>
+                      <i className="bi bi-arrow-right-short text-success fs-4"></i>
+                    </h5>
+                    <p className="text-muted small mb-0">{cat.description}</p>
+                  </div>
+                </Link>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* SERVICES */}
       <section className="py-5 bg-light">
         <div className="container text-center">
           <h2 className="fw-bold mb-5">
-            Laboratory Equipment &
-            Diagnostic Services
+            Laboratory Equipment & Diagnostic Services
           </h2>
 
           <div className="row g-4">
@@ -150,63 +171,33 @@ export default function Home({ city }) {
               services.map((item, i) => (
                 <div className="col-12 col-sm-6 col-md-4" key={i}>
                   <div className="p-4 rounded-4 service-card h-100">
-
-                    {/* ICON */}
                     <i className={`bi ${icons[i] || "bi-heart-pulse"} fs-1 text-success`}></i>
-
-                    {/* DATA */}
                     <h5 className="mt-3">{item.title}</h5>
                     <p className="text-muted">{item.desc}</p>
-
                   </div>
                 </div>
               ))
             )}
           </div>
-
         </div>
       </section>
-
 
       {/* PRODUCTS */}
       <section className="py-5 bg-white">
         <div className="container text-center">
-
-          <h2 className="section-title">
-            Laboratory Equipment &
-            Biomedical Products
+          <h2 className="section-title fw-bold mb-4">
+            Featured Biomedical Products
           </h2>
 
           <div className="row g-4">
-
             {loadingProducts ? (
               [...Array(4)].map((_, i) => (
                 <div className="col-12 col-sm-6 col-md-3" key={i}>
                   <div className="product-card-pro">
-                    <div
-                      style={{
-                        height: 260,
-                        background: "#f1f1f1",
-                        borderRadius: 12,
-                      }}
-                    />
+                    <div style={{ height: 260, background: "#f1f1f1", borderRadius: 12 }} />
                     <div className="p-3">
-                      <div
-                        style={{
-                          height: 20,
-                          background: "#f1f1f1",
-                          borderRadius: 5,
-                          marginBottom: 10,
-                        }}
-                      />
-                      <div
-                        style={{
-                          height: 15,
-                          background: "#f1f1f1",
-                          borderRadius: 5,
-                          width: "70%",
-                        }}
-                      />
+                      <div style={{ height: 20, background: "#f1f1f1", borderRadius: 5, marginBottom: 10 }} />
+                      <div style={{ height: 15, background: "#f1f1f1", borderRadius: 5, width: "70%" }} />
                     </div>
                   </div>
                 </div>
@@ -214,16 +205,10 @@ export default function Home({ city }) {
             ) : (
               products.slice(0, 4).map((item, i) => (
                 <div className="col-12 col-sm-6 col-md-3" key={item.id || i}>
-
-                  <div className="product-card-pro">
-
+                  <div className="product-card-pro h-100 d-flex flex-column justify-content-between">
                     <div className="product-img-pro">
                       <img
-                        src={
-                          item.images?.[0] ||
-                          item.image ||
-                          "/no-image.png"
-                        }
+                        src={item.images?.[0] || item.image || "/no-image.png"}
                         loading="lazy"
                         alt={item.title}
                         onError={(e) => {
@@ -233,164 +218,122 @@ export default function Home({ city }) {
                     </div>
 
                     <div className="product-body text-start">
-
                       <h6>{item.title}</h6>
-
-                      <div className="meta">
+                      <div className="meta mb-2">
                         <span>{item.brand || "-"}</span>
                         <span>{item.size || "-"}</span>
                         <span>{item.usage || "-"}</span>
                       </div>
 
-                      <Link
-                        href={citySlug ? `/${citySlug}/products` : "/products"}
-                      >
-                        <button className="btn btn-success w-100 mt-3">
+                      <Link href={citySlug ? `/${citySlug}/products` : "/products"}>
+                        <button className="btn btn-success w-100 mt-2">
                           View Details
                         </button>
                       </Link>
-
                     </div>
-
                   </div>
-
                 </div>
               ))
             )}
-
           </div>
         </div>
       </section>
 
-      <div className="d-none">
-        <h2>
-          Laboratory Equipment Supplier
-          in India
-        </h2>
-
-        <p>
-          Global Biomedicals is a trusted
-          supplier of laboratory
-          equipment, diagnostic
-          instruments, biomedical
-          products, pathology machines,
-          laboratory consumables and
-          hospital equipment across
-          India.
-        </p>
-      </div>
-
-
       {/* WHY CHOOSE US */}
-      {/* <section className="py-5" style={{background:"#f8fafc"}}>
-  <div className="container-fluid px-5">
-
-    <div className="row align-items-center gy-5">
-
-      <div className="col-lg-6" data-aos="fade-right">
-
-        <h2 className="fw-bold mb-4 display-5">
-          Why Choose <span style={{color:"#198754"}}>Global Biomedical?</span>
-        </h2>
-
-        <p className="text-muted fs-5">
-          We deliver trusted diagnostic solutions with high precision
-          and reliability for hospitals and laboratories.
-        </p>
-
-        <div className="mt-4">
-
-          <div className="d-flex align-items-center mb-3 feature-item">
-            <i className="bi bi-check-circle-fill text-success fs-4 me-3"></i>
-            <span>Certified Medical Products</span>
-          </div>
-
-          <div className="d-flex align-items-center mb-3 feature-item">
-            <i className="bi bi-truck text-success fs-4 me-3"></i>
-            <span>Pan India Delivery</span>
-          </div>
-
-          <div className="d-flex align-items-center mb-3 feature-item">
-            <i className="bi bi-headset text-success fs-4 me-3"></i>
-            <span>Expert Support Team</span>
-          </div>
-
-        </div>
-
-      </div>
-
-  
-      <div className="col-lg-6 text-center" data-aos="zoom-in">
-
-        <div className="image-wrapper">
-          <img
-            src="https://images.unsplash.com/photo-1581594693702-fbdc51b2763b"
-            className="img-fluid rounded-4 shadow-lg"
-          />
-        </div>
-
-      </div>
-
-    </div>
-
-  </div>
-</section> */}
-
-      <section className="py-5 why-section">
-        <div className="container-fluid px-md-5 px-3 text-center">
+      <section className="py-5 why-section bg-white">
+        <div className="container px-md-5 px-3">
           <div className="row align-items-center gy-5">
-            {/* LEFT */}
-            <div className="col-lg-6" data-aos="fade-right">
-              <h2 className="fw-bold mb-4 display-5">
-                Why Choose <span className="text-success">Global Biomedicals?</span>
+            <div className="col-lg-6">
+
+              <div className="d-inline-flex align-items-center gap-2 px-3 py-1.5 rounded-pill bg-success-subtle text-success fw-bold small mb-3">
+                <i className="bi bi-shield-check-fill"></i>
+                <span>Why Global Biomedical LLP</span>
+              </div>
+
+              <h2 className="fw-bold mb-3 display-6 text-dark">
+                Trusted Medical Equipment & Diagnostic Partner
               </h2>
 
-              <p className="fs-5">
-                We deliver trusted diagnostic solutions with high precision
-                and reliability for hospitals and laboratories.
+              <p className="text-secondary mb-4 fs-6">
+                We supply high-precision analyzers, ICU equipment, and clinical laboratory consumables to hospitals, pathology labs, and medical institutions across India with guaranteed technical service.
               </p>
 
-              {/* FEATURES */}
-              <div className="mt-4">
-                <div className="feature-item">
-                  <i className="bi bi-check-circle-fill"></i>
-                  Certified Medical Products
+              <div className="row g-3 mb-4">
+                <div className="col-sm-6">
+                  <div className="p-3 rounded-4 bg-light border h-100">
+                    <div className="d-flex align-items-center gap-3 mb-2">
+                      <div className="badge bg-success-subtle text-success fs-5 p-2 rounded-3">
+                        <i className="bi bi-award-fill"></i>
+                      </div>
+                      <h6 className="fw-bold m-0 text-dark">100% Genuine Brands</h6>
+                    </div>
+                    <p className="small text-muted mb-0">Authorized equipment from Abbott, Sysmex, Erba & Mindray.</p>
+                  </div>
                 </div>
 
-                <div className="feature-item">
-                  <i className="bi bi-truck"></i>
-                  Pan India Delivery
+                <div className="col-sm-6">
+                  <div className="p-3 rounded-4 bg-light border h-100">
+                    <div className="d-flex align-items-center gap-3 mb-2">
+                      <div className="badge bg-success-subtle text-success fs-5 p-2 rounded-3">
+                        <i className="bi bi-truck"></i>
+                      </div>
+                      <h6 className="fw-bold m-0 text-dark">Express Shipping</h6>
+                    </div>
+                    <p className="small text-muted mb-0">Safe, secure express delivery to 400+ cities across India.</p>
+                  </div>
                 </div>
 
-                <div className="feature-item">
-                  <i className="bi bi-headset"></i>
-                  Expert Support Team
+                <div className="col-sm-6">
+                  <div className="p-3 rounded-4 bg-light border h-100">
+                    <div className="d-flex align-items-center gap-3 mb-2">
+                      <div className="badge bg-success-subtle text-success fs-5 p-2 rounded-3">
+                        <i className="bi bi-headset"></i>
+                      </div>
+                      <h6 className="fw-bold m-0 text-dark">24/7 Engineer Support</h6>
+                    </div>
+                    <p className="small text-muted mb-0">Dedicated helpline & on-site AMC calibration service.</p>
+                  </div>
+                </div>
+
+                <div className="col-sm-6">
+                  <div className="p-3 rounded-4 bg-light border h-100">
+                    <div className="d-flex align-items-center gap-3 mb-2">
+                      <div className="badge bg-success-subtle text-success fs-5 p-2 rounded-3">
+                        <i className="bi bi-tag-fill"></i>
+                      </div>
+                      <h6 className="fw-bold m-0 text-dark">Best Market Rates</h6>
+                    </div>
+                    <p className="small text-muted mb-0">Transparent pricing for equipment, reagents & consumables.</p>
+                  </div>
                 </div>
               </div>
 
               {/* STATS */}
-              <div className="row mt-5 stats">
+              <div className="row g-3 text-center border-top pt-3">
                 <div className="col-4">
-                  <h3>1000+</h3>
-                  <p>Clients</p>
+                  <h4 className="fw-extrabold text-success mb-0">1000+</h4>
+                  <small className="text-muted fw-medium">Happy Labs</small>
                 </div>
-
-                <div className="col-4">
-                  <h3>15+</h3>
-                  <p>Years</p>
+                <div className="col-4 border-start border-end">
+                  <h4 className="fw-extrabold text-success mb-0">15+</h4>
+                  <small className="text-muted fw-medium">Years Excellence</small>
                 </div>
-
                 <div className="col-4">
-                  <h3>500+</h3>
-                  <p>Products</p>
+                  <h4 className="fw-extrabold text-success mb-0">500+</h4>
+                  <small className="text-muted fw-medium">Products Sold</small>
                 </div>
               </div>
+
             </div>
-            <div className="col-lg-6 text-center" data-aos="zoom-in">
-              <div className="image-wrapper">
+
+            {/* RIGHT IMAGE */}
+            <div className="col-lg-6">
+              <div className="position-relative p-2 rounded-4 bg-light border shadow-sm">
                 <img
                   src="https://images.unsplash.com/photo-1581594693702-fbdc51b2763b"
-                  className="img-fluid"
+                  className="img-fluid rounded-4 w-100"
+                  alt="Global Biomedical LLP Laboratory Equipment"
+                  style={{ maxHeight: "460px", objectFit: "cover" }}
                 />
               </div>
             </div>
@@ -398,43 +341,71 @@ export default function Home({ city }) {
         </div>
       </section>
 
-      <section className="py-5 bg-light">
-        <div className="container text-center">
-          <h2 className="fw-bold mb-4">Our Trusted Partners</h2>
+      {/* CTA BANNER MATCHING MEDICAL GREEN THEME */}
+      <section
+        className="py-5 text-center text-white no-print"
+        style={{
+          background: "linear-gradient(135deg, #052e16 0%, #064e3b 50%, #0f5132 100%)",
+        }}
+      >
+        <div className="container py-3">
+          <div className="badge bg-warning text-dark px-3 py-1.5 rounded-pill fw-bold mb-3">
+            <i className="bi bi-telephone-fill me-1"></i> Direct Helpline Support
+          </div>
 
-          <div className="partner-slider">
-            <div className="partner-track">
+          <h2 className="fw-bold display-6 mb-3 text-white">
+            Need Expert Biomedical Equipment Guidance?
+          </h2>
 
-              {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-                <img
-                  key={i}
-                  src="https://upload.wikimedia.org/wikipedia/commons/3/3f/Logo_placeholder.png"
-                />
-              ))}
-            </div>
+          <p className="mb-4 text-white-50 fs-5 mx-auto" style={{ maxWidth: "650px" }}>
+            Speak directly with our technical specialists for instant quotes, product specs, or machine service support across India.
+          </p>
+
+          {/* HELPLINE NUMBERS BADGES */}
+          <div className="d-flex justify-content-center align-items-center gap-3 flex-wrap mb-4">
+            <a href="tel:+919257984336" className="btn btn-outline-light rounded-pill px-3 py-2 text-decoration-none fw-bold">
+              <i className="bi bi-telephone-outbound me-2 text-warning"></i>9257984336
+            </a>
+            <a href="tel:+918529833535" className="btn btn-outline-light rounded-pill px-3 py-2 text-decoration-none fw-bold">
+              <i className="bi bi-telephone-outbound me-2 text-warning"></i>8529833535
+            </a>
+            <a href="tel:+919983301657" className="btn btn-outline-light rounded-pill px-3 py-2 text-decoration-none fw-bold">
+              <i className="bi bi-telephone-outbound me-2 text-warning"></i>9983301657
+            </a>
+          </div>
+
+          <div className="d-flex justify-content-center gap-3 flex-wrap">
+            <a
+              href="https://wa.me/919257984336?text=Hello%20Global%20Biomedical%20LLP,%20I%20need%20equipment%20details"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-success btn-lg px-4 py-2.5 fw-bold shadow rounded-pill text-decoration-none d-inline-flex align-items-center gap-2"
+            >
+              <i className="bi bi-whatsapp"></i>
+              <span>Chat on WhatsApp</span>
+            </a>
+
+            <Link href={citySlug ? `/${citySlug}/contact` : "/contact"} className="text-decoration-none">
+              <button className="btn btn-light btn-lg px-4 py-2.5 text-success fw-bold rounded-pill shadow-sm">
+                Get In Touch
+              </button>
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* CTA */}
-      <section
-        className="py-5 text-center text-white"
-        style={{
-          background: "linear-gradient(135deg, #155e75, #164e63)",
-        }}
-      >
-        <div className="container">
-          <h2 className="fw-bold">Need Medical Solutions?</h2>
-          <p>Contact us today for best diagnostic equipment</p>
+      <style jsx>{`
+        .category-card {
+          background: #ffffff;
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
 
-          <Link href={citySlug ? `/${citySlug}/contact` : "/contact"}>
-            <button className="btn btn-light px-4">
-              Get in Touch
-            </button>
-          </Link>
-        </div>
-      </section >
-
+        .category-card:hover {
+          transform: translateY(-8px);
+          box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08) !important;
+          border-color: #198754 !important;
+        }
+      `}</style>
     </>
   );
 }

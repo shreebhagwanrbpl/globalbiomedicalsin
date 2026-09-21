@@ -16,6 +16,7 @@ import "./product.css";
 const ProductLink = memo(function ProductLink({ item, category, scrollToProduct }) {
   return (
     <button
+      suppressHydrationWarning
       onClick={() => scrollToProduct(item.slug, category)}
       className="product-link cursor-pointer border-0 bg-transparent text-start w-100"
     >
@@ -37,6 +38,7 @@ const SubCategoryItem = memo(function SubCategoryItem({
     <div className="relative space-y-2 pl-2">
       {/* Subcategory Header */}
       <button
+        suppressHydrationWarning
         onClick={() => toggleSubCategory(category, subCategory)}
         className="subcategory-btn w-full text-left py-1.5 flex justify-between items-center text-xs font-bold text-red-600 hover:text-red-700 transition-colors uppercase tracking-wider border-b border-slate-100 pb-1 cursor-pointer border-0"
       >
@@ -90,6 +92,7 @@ const CategoryItem = memo(function CategoryItem({
   return (
     <div className="category-item relative">
       <button
+        suppressHydrationWarning
         onClick={() => toggleCategory(category)}
         className={`category-btn ${isActive ? "active" : ""}`}
       >
@@ -459,6 +462,7 @@ export default function ProductsClient({ initialProducts = [], district = null, 
 
                   <div className="sidebar-search">
                     <input
+                      suppressHydrationWarning
                       type="text"
                       placeholder="Search categories..."
                       value={categorySearch}
@@ -504,6 +508,7 @@ export default function ProductsClient({ initialProducts = [], district = null, 
                 <div className="row align-items-center">
                   <div className="col-lg-10">
                     <input
+                      suppressHydrationWarning
                       type="text"
                       className="form-control"
                       placeholder={
@@ -517,6 +522,7 @@ export default function ProductsClient({ initialProducts = [], district = null, 
                   </div>
                   <div className="col-lg-2 mt-2 mt-lg-0">
                     <button
+                      suppressHydrationWarning
                       className="btn-reset w-100 cursor-pointer border-0"
                       onClick={() => {
                         setSearchInput("");

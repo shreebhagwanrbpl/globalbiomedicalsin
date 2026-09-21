@@ -12,6 +12,7 @@ import {
     FaFacebook,
     FaInstagram,
     FaLink,
+    FaFilePdf,
 } from "react-icons/fa";
 
 import {
@@ -369,6 +370,7 @@ export default function ProductDetails({ slug, product: initialProduct }) {
     return (
         <>
             <Toaster position="top-right" />
+            <ProductPdfBrochure product={product} />
 
             <script
                 type="application/ld+json"
@@ -389,7 +391,7 @@ export default function ProductDetails({ slug, product: initialProduct }) {
                     Home / Products / {product.title}
                 </div>
 
-                <div className="row align-items-start g-5">
+                <div className="row align-items-start g-5 position-relative" style={{ zIndex: 1 }}>
                     {/* IMAGE */}
                     <div className="col-lg-6 text-center">
                         <div
@@ -509,52 +511,64 @@ export default function ProductDetails({ slug, product: initialProduct }) {
                                 {product.title}
                             </h1>
 
-                            <div
-                                ref={shareRef}
-                                className="position-relative"
-                            >
+                            <div className="d-flex gap-2 align-items-center">
                                 <button
-                                    className="btn btn-light border rounded-circle"
-                                    onClick={handleNativeShare}
+                                    suppressHydrationWarning
+                                    className="btn btn-danger btn-sm px-3 py-2 fw-bold d-flex align-items-center gap-2 shadow-sm rounded-3"
+                                    onClick={() => window.print()}
+                                    title="Download Product Brochure (PDF)"
                                 >
-                                    <FaShareAlt />
+                                    <FaFilePdf size={16} />
+                                    <span>Download Brochure (PDF)</span>
                                 </button>
 
-                                {showShare && (
-                                    <div className="absolute right-0 top-14 w-56 bg-white rounded-xl shadow-xl border p-2 z-50 text-start" style={{ right: 0 }}>
-                                        <button
-                                            onClick={handleCopy}
-                                            className="w-full text-left px-3 py-2 hover:bg-slate-100 rounded flex items-center gap-2 border-0 bg-transparent"
-                                        >
-                                            <FaLink />
-                                            Copy Link
-                                        </button>
+                                <div
+                                    ref={shareRef}
+                                    className="position-relative"
+                                >
+                                    <button
+                                        className="btn btn-light border rounded-circle"
+                                        onClick={handleNativeShare}
+                                    >
+                                        <FaShareAlt />
+                                    </button>
 
-                                        <button
-                                            onClick={handleWhatsapp}
-                                            className="w-full text-left px-3 py-2 hover:bg-slate-100 rounded flex items-center gap-2 border-0 bg-transparent"
-                                        >
-                                            <FaWhatsapp className="text-green-600" />
-                                            WhatsApp
-                                        </button>
+                                    {showShare && (
+                                        <div className="absolute right-0 top-14 w-56 bg-white rounded-xl shadow-xl border p-2 z-50 text-start" style={{ right: 0 }}>
+                                            <button
+                                                onClick={handleCopy}
+                                                className="w-full text-left px-3 py-2 hover:bg-slate-100 rounded flex items-center gap-2 border-0 bg-transparent"
+                                            >
+                                                <FaLink />
+                                                Copy Link
+                                            </button>
 
-                                        <button
-                                            onClick={handleFacebook}
-                                            className="w-full text-left px-3 py-2 hover:bg-slate-100 rounded flex items-center gap-2 border-0 bg-transparent"
-                                        >
-                                            <FaFacebook className="text-blue-600" />
-                                            Facebook
-                                        </button>
+                                            <button
+                                                onClick={handleWhatsapp}
+                                                className="w-full text-left px-3 py-2 hover:bg-slate-100 rounded flex items-center gap-2 border-0 bg-transparent"
+                                            >
+                                                <FaWhatsapp className="text-green-600" />
+                                                WhatsApp
+                                            </button>
 
-                                        <button
-                                            onClick={handleInstagram}
-                                            className="w-full text-left px-3 py-2 hover:bg-slate-100 rounded flex items-center gap-2 border-0 bg-transparent"
-                                        >
-                                            <FaInstagram className="text-pink-600" />
-                                            Instagram
-                                        </button>
-                                    </div>
-                                )}
+                                            <button
+                                                onClick={handleFacebook}
+                                                className="w-full text-left px-3 py-2 hover:bg-slate-100 rounded flex items-center gap-2 border-0 bg-transparent"
+                                            >
+                                                <FaFacebook className="text-blue-600" />
+                                                Facebook
+                                            </button>
+
+                                            <button
+                                                onClick={handleInstagram}
+                                                className="w-full text-left px-3 py-2 hover:bg-slate-100 rounded flex items-center gap-2 border-0 bg-transparent"
+                                            >
+                                                <FaInstagram className="text-pink-600" />
+                                                Instagram
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </div>
 

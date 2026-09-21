@@ -24,41 +24,6 @@ html {
 
 /* ==== HERO SECTION ==== */
 .hero-section {
-  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-  padding: 100px 0;
-  position: relative !important;
-  overflow: hidden;
-  z-index: 1;
-}
-
-.hero-section h1 {
-  line-height: 1.2;
-}
-
-.hero-section .row {
-  min-height: 70vh;
-  align-items: center;
-}
-
-.hero-section p {
-  font-size: 16px;
-  opacity: 0.9;
-}
-
-/* Glow effect */
-.hero-glow {
-  position: absolute;
-  width: 300px;
-  height: 300px;
-  background: rgba(25, 135, 84, 0.4);
-  filter: blur(120px);
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 0;
-}
-
-.hero-section img {
   position: relative;
   z-index: 1;
 }

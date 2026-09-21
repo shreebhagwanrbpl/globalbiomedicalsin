@@ -2,24 +2,25 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "aos/dist/aos.css";
 import "./globals.css";
-// import Script from "next/script";
 
 import AOSInit from "./components/AOSInit";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import FloatingContact from "./components/FloatingContact";
 
 export const metadata = {
   metadataBase: new URL("https://globalbiomedicals.in"),
 
   title: {
-    default: "Global Biomedical | Laboratory & Medical Equipment Supplier",
-    template: "%s | Global Biomedical",
+    default: "Global Biomedical LLP | Laboratory & Medical Equipment Supplier",
+    template: "%s | Global Biomedical LLP",
   },
 
   description:
-    "Global Biomedical is a trusted supplier of laboratory equipment, diagnostic analyzers, biomedical instruments, reagents, hospital equipment, and healthcare solutions across India.",
+    "Global Biomedical LLP is a trusted supplier of laboratory equipment, diagnostic analyzers, biomedical instruments, reagents, hospital furniture, and healthcare solutions across India.",
 
   keywords: [
+    "Global Biomedical LLP",
     "Global Biomedical",
     "Laboratory Equipment",
     "Medical Equipment",
@@ -38,12 +39,12 @@ export const metadata = {
 
   authors: [
     {
-      name: "Global Biomedical",
+      name: "Global Biomedical LLP",
     },
   ],
 
-  creator: "Global Biomedical",
-  publisher: "Global Biomedical",
+  creator: "Global Biomedical LLP",
+  publisher: "Global Biomedical LLP",
 
   alternates: {
     canonical: "/",
@@ -63,29 +64,29 @@ export const metadata = {
   },
 
   openGraph: {
-    title: "Global Biomedical | Laboratory & Medical Equipment Supplier",
+    title: "Global Biomedical LLP | Laboratory & Medical Equipment Supplier",
     description:
       "Trusted supplier of laboratory equipment, diagnostic analyzers, biomedical instruments, reagents, and healthcare solutions.",
     url: "https://globalbiomedicals.in",
-    siteName: "Global Biomedical",
+    siteName: "Global Biomedical LLP",
     locale: "en_IN",
     type: "website",
     images: [
       {
-        url: "/og-image.jpg", // Replace with your OG image
+        url: "/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "Global Biomedical",
+        alt: "Global Biomedical LLP",
       },
     ],
   },
 
   twitter: {
     card: "summary_large_image",
-    title: "Global Biomedical | Laboratory & Medical Equipment Supplier",
+    title: "Global Biomedical LLP | Laboratory & Medical Equipment Supplier",
     description:
       "Trusted supplier of laboratory equipment, biomedical instruments, analyzers, and healthcare solutions.",
-    images: ["/og-image.jpg"], // Replace with your OG image
+    images: ["/og-image.jpg"],
   },
 
   icons: {
@@ -100,51 +101,51 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      
       <body>
-         {/* <Script
-    id="organization-schema"
-    type="application/ld+json"
-    strategy="beforeInteractive"
-    dangerouslySetInnerHTML={{
-      __html: JSON.stringify({
-        "@context": "https://schema.org",
-        "@type": "Organization",
-        name: "Global Biomedical",
-        url: "https://globalbiomedical.in",
-        logo: "https://globalbiomedical.in/logo.png",
-        image: "https://globalbiomedical.in/og-image.jpg",
-        description:
-          "Trusted supplier of laboratory equipment, diagnostic analyzers, biomedical instruments, reagents, and healthcare solutions.",
-        sameAs: [],
-      }),
-    }}
-  /> */}
-
-  <script
-  type="application/ld+json"
-  dangerouslySetInnerHTML={{
-    __html: JSON.stringify({
-      "@context": "https://schema.org",
-      "@type": "Organization",
-      name: "Global Biomedical",
-      url: "https://globalbiomedicals.in",
-      logo: "https://globalbiomedicals.in/logo.png",
-      image: "https://globalbiomedicals.in/og-image.jpg",
-      description:
-        "Trusted supplier of laboratory equipment, diagnostic analyzers, biomedical instruments, reagents, and healthcare solutions.",
-      sameAs: [],
-    }),
-  }}
-/>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: "Global Biomedical LLP",
+              url: "https://globalbiomedicals.in",
+              logo: "https://globalbiomedicals.in/globallogo.png",
+              image: "https://globalbiomedicals.in/og-image.jpg",
+              description:
+                "Trusted supplier of laboratory equipment, diagnostic analyzers, biomedical instruments, reagents, and healthcare solutions.",
+              contactPoint: [
+                {
+                  "@type": "ContactPoint",
+                  telephone: "+91-9257984336",
+                  contactType: "sales",
+                },
+                {
+                  "@type": "ContactPoint",
+                  telephone: "+91-8529833535",
+                  contactType: "customer service",
+                },
+                {
+                  "@type": "ContactPoint",
+                  telephone: "+91-9983301657",
+                  contactType: "helpline",
+                },
+              ],
+            }),
+          }}
+        />
 
         <AOSInit />
 
         <Navbar />
 
-        {children}
+        <main style={{ position: "relative", zIndex: 1 }}>
+          {children}
+        </main>
 
         <Footer />
+
+        <FloatingContact />
       </body>
     </html>
   );

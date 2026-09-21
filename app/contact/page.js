@@ -13,6 +13,7 @@ export default function Contact() {
   const [loading, setLoading] = useState(true);
   const [stateName, setStateName] = useState("");
   const [validCity, setValidCity] = useState("");
+
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -50,7 +51,6 @@ export default function Contact() {
 
   const pathname = usePathname();
   const pathParts = pathname.split("/").filter(Boolean);
-
   const reservedRoutes = [
     "about",
     "contact",
@@ -119,13 +119,13 @@ export default function Contact() {
     if (!name.trim() || !email.trim() || !phone.trim() || !message.trim()) {
       return toast.error("Fill all fields");
     }
-    const phoneRegex = /^[6-9]\d{9}$/;
 
+    const phoneRegex = /^[6-9]\d{9}$/;
     if (!phoneRegex.test(phone)) {
       return toast.error("Please enter a valid 10 digit mobile number");
     }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return toast.error("Please enter a valid email address");
     }
@@ -153,21 +153,22 @@ export default function Contact() {
       });
     } catch (err) {
       console.error(err);
-      toast.error("Failed to send");
+      toast.error("Failed to send message");
     }
   };
 
   return (
     <div className="contact-page">
       <Toaster position="top-right" />
+
       {/* HERO */}
-      <section className="contact-hero text-center">
-        <div className="container">
-          <h1 className="fw-bold display-4">
-            Contact <span>Us</span>
+      <section className="contact-hero text-center py-5" style={{ background: "linear-gradient(135deg, #eefaf3, #f8fdfb)" }}>
+        <div className="container py-4">
+          <h1 className="fw-bold display-4 text-dark">
+            Contact <span className="text-success">Global Biomedical LLP</span>
           </h1>
-          <p className="mt-3">
-            Get in touch with us for medical solutions & support
+          <p className="mt-3 text-secondary lead">
+            Get in touch with our expert team for medical & laboratory equipment inquiries
           </p>
         </div>
       </section>
@@ -197,10 +198,10 @@ export default function Contact() {
                           item.label.toLowerCase().includes("address")
                             ? "bi bi-geo-alt"
                             : item.label.toLowerCase().includes("email")
-                            ? "bi bi-envelope"
-                            : item.label.toLowerCase().includes("phone")
-                            ? "bi bi-telephone"
-                            : "bi bi-info-circle"
+                              ? "bi bi-envelope"
+                              : item.label.toLowerCase().includes("phone")
+                                ? "bi bi-telephone"
+                                : "bi bi-info-circle"
                         }
                       ></i>
 
@@ -222,38 +223,44 @@ export default function Contact() {
               </div>
             </div>
 
-            {/* RIGHT FORM */}
+            {/* RIGHT CONTACT FORM */}
             <div className="col-lg-7">
-              <div className="contact-form">
+              <div className="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white">
+                <h4 className="fw-bold mb-4 text-dark">Send Us a Message</h4>
+
                 <div className="row g-3">
                   <div className="col-md-6">
+                    <label className="form-label small fw-semibold text-secondary">Your Name</label>
                     <input
                       type="text"
                       name="name"
-                      placeholder="Your Name"
-                      className="input-field"
+                      placeholder="Enter full name"
+                      className="form-control py-2.5 rounded-3"
                       value={form.name}
                       onChange={handleChange}
                     />
                   </div>
 
                   <div className="col-md-6">
+                    <label className="form-label small fw-semibold text-secondary">Email Address</label>
                     <input
                       type="email"
                       name="email"
-                      placeholder="Email Address"
-                      className="input-field"
+                      placeholder="Enter email address"
+                      className="form-control py-2.5 rounded-3"
                       value={form.email}
                       onChange={handleChange}
                     />
                   </div>
 
                   <div className="col-md-6">
+                    <label className="form-label small fw-semibold text-secondary">Phone Number</label>
                     <input
                       type="tel"
                       name="phone"
                       maxLength={10}
-                      className="input-field"
+                      placeholder="10 digit mobile number"
+                      className="form-control py-2.5 rounded-3"
                       value={form.phone}
                       onChange={(e) =>
                         setForm({
@@ -276,22 +283,26 @@ export default function Contact() {
                   </div>
 
                   <div className="col-12">
+                    <label className="form-label small fw-semibold text-secondary">Your Message</label>
                     <textarea
                       name="message"
                       rows="4"
-                      placeholder="Your Message"
+                      className="form-control rounded-3"
+                      placeholder="Write your requirement or questions here..."
                       value={form.message}
                       onChange={handleChange}
                     ></textarea>
                   </div>
 
-                  <button
-                    type="button"
-                    className="btn submit-btn w-100"
-                    onClick={handleSubmit}
-                  >
-                    Send Message
-                  </button>
+                  <div className="col-12 mt-4">
+                    <button
+                      type="button"
+                      className="btn btn-success w-100 py-3 rounded-3 fw-bold shadow-sm"
+                      onClick={handleSubmit}
+                    >
+                      Submit Inquiry
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -300,16 +311,15 @@ export default function Contact() {
       </section>
 
       {/* MAP */}
-      <section className="map-section">
+      <section className="map-section no-print">
         <div className="container-fluid p-0">
           <iframe
-            src={`https://maps.google.com/maps?q=${
-              validCity
-                ? stateName
-                  ? `${validCity}, ${stateName}, India`
-                  : `${validCity}, India`
-                : "Amrapali , Vaishali Nagar , Jaipur, India, 302021"
-            }&output=embed`}
+            src={`https://maps.google.com/maps?q=${validCity
+              ? stateName
+                ? `${validCity}, ${stateName}, India`
+                : `${validCity}, India`
+              : "Amrapali , Vaishali Nagar , Jaipur, India, 302021"
+              }&output=embed`}
             width="100%"
             height="400"
             style={{ border: 0 }}

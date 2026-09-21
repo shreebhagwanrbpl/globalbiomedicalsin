@@ -1,69 +1,75 @@
 "use client";
 
 export default function About() {
+
   return (
     <div className="about-page">
 
-      {/* 🔥 HERO */}
+      {/* HERO */}
       <section className="about-hero text-center">
         <div className="container">
           <h1 className="fw-bold display-4">
-            About <span>Global Biomedicals</span>
+            About <span>Global Biomedical LLP</span>
           </h1>
-          <p className="mt-3">
-            Empowering healthcare with advanced diagnostic solutions
+          <p className="mt-3 fs-5">
+            Empowering healthcare & clinical diagnostics with reliable, high-precision equipment across India
           </p>
         </div>
       </section>
 
-      {/* 🔥 ABOUT CONTENT */}
+      {/* ABOUT CONTENT */}
       <section className="py-5">
         <div className="container">
           <div className="row align-items-center gy-5">
 
             {/* LEFT */}
             <div className="col-lg-6" data-aos="fade-right">
-              <h3 className="fw-bold mb-3">
-                Delivering Quality Healthcare Solutions
+              <h3 className="fw-bold mb-3 text-dark">
+                Delivering Premium Medical & Laboratory Solutions
               </h3>
 
-              <p className="text-muted">
-                Global Biomedicals has been providing high-quality diagnostic instruments,
-                lab equipment, and medical consumables across India.
+              <p className="text-secondary">
+                <strong>Global Biomedical LLP</strong> is a premier supplier and service provider of advanced laboratory equipment,
+                pathology analyzers, ICU monitors, surgical instruments, and clinical consumables.
               </p>
 
-              <p className="text-muted">
-                Our mission is to empower healthcare professionals with reliable
-                and advanced technology.
+              <p className="text-secondary">
+                Our mission is to support doctors, path labs, and hospitals with state-of-the-art technology, transparent pricing, and instant technical service support.
               </p>
 
               {/* FEATURES */}
               <div className="mt-4">
-
                 <div className="feature">
                   <i className="bi bi-check-circle-fill"></i>
-                  Trusted Medical Products
+                  <span>Certified Medical & Laboratory Products</span>
                 </div>
 
                 <div className="feature">
                   <i className="bi bi-truck"></i>
-                  Pan India Delivery
+                  <span>Pan-India Fast Delivery & Logistics</span>
                 </div>
 
                 <div className="feature">
                   <i className="bi bi-headset"></i>
-                  24/7 Support Team
+                  <span>Dedicated Helpline Support (9257984336, 8529833535, 9983301657)</span>
                 </div>
-
               </div>
 
+              <a
+                href="/products"
+                className="btn btn-success mt-4 px-4 py-2 fw-semibold d-inline-flex align-items-center gap-2 text-white text-decoration-none"
+              >
+                <i className="bi bi-file-earmark-pdf-fill text-white"></i>
+                <span>Explore Products Catalog (PDF)</span>
+              </a>
             </div>
 
             {/* RIGHT IMAGE */}
             <div className="col-lg-6 text-center" data-aos="zoom-in">
               <img
                 src="https://cdn.dribbble.com/users/1787323/screenshots/14684624/media/2c9c9d9c6cb3a3c6fd51f54b9cf2d80e.png"
-                className="img-fluid about-img"
+                className="img-fluid about-img rounded-4 shadow-sm"
+                alt="Global Biomedical LLP About Us"
               />
             </div>
 
@@ -71,39 +77,38 @@ export default function About() {
         </div>
       </section>
 
-      {/* 🔥 STATS */}
+      {/* STATS */}
       <section className="stats-section text-center">
         <div className="container">
-          <div className="row">
+          <div className="row g-4">
 
             <div className="col-md-4">
-              <h2>1000+</h2>
-              <p>Happy Clients</p>
+              <h2 className="fw-bold">1000+</h2>
+              <p className="lead text-light">Satisfied Hospitals & Labs</p>
             </div>
 
             <div className="col-md-4">
-              <h2>15+</h2>
-              <p>Years Experience</p>
+              <h2 className="fw-bold">15+</h2>
+              <p className="lead text-light">Years Industry Experience</p>
             </div>
 
             <div className="col-md-4">
-              <h2>500+</h2>
-              <p>Products Delivered</p>
+              <h2 className="fw-bold">500+</h2>
+              <p className="lead text-light">Quality Medical Products</p>
             </div>
 
           </div>
         </div>
       </section>
 
-      {/* 🔥 STYLES */}
+      {/* STYLES */}
       <style jsx>{`
         .about-page {
           background: #f8fdfb;
         }
 
-        /* HERO */
         .about-hero {
-          padding: 100px 0;
+          padding: 80px 0;
           background: linear-gradient(135deg, #eefaf3, #f8fdfb);
         }
 
@@ -112,38 +117,36 @@ export default function About() {
         }
 
         .about-hero p {
-          color: #666;
+          color: #555;
         }
 
-        /* FEATURES */
         .feature {
           display: flex;
           align-items: center;
-          gap: 10px;
-          margin-bottom: 10px;
+          gap: 12px;
+          margin-bottom: 12px;
           font-weight: 500;
+          color: #333;
         }
 
         .feature i {
           color: #198754;
+          font-size: 20px;
         }
 
-        /* IMAGE */
         .about-img {
-          max-width: 400px;
+          max-width: 420px;
           animation: float 4s ease-in-out infinite;
         }
 
-        /* FLOAT */
         @keyframes float {
           0% { transform: translateY(0); }
           50% { transform: translateY(-10px); }
           100% { transform: translateY(0); }
         }
 
-        /* STATS */
         .stats-section {
-         background: linear-gradient(135deg, #155e75, #164e63);
+          background: linear-gradient(135deg, #155e75, #164e63);
           color: white;
           padding: 60px 0;
         }
@@ -151,12 +154,7 @@ export default function About() {
         .stats-section h2 {
           color: #00ffae;
         }
-
-        .stats-section p {
-          margin: 0;
-        }
       `}</style>
-
     </div>
   );
 }
