@@ -2,12 +2,6 @@
 
 import Hero from "./components/Hero";
 import { useEffect, useState } from "react";
-import {
-  doc,
-  getDoc,
-  collection,
-  getDocs,
-} from "firebase/firestore";
 import { fetchFullCatalog, fetchServicesData } from "@/lib/data-fetcher";
 import Link from "next/link";
 

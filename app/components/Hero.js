@@ -51,11 +51,10 @@ export default function Hero({ city }) {
     );
   }
 
-  const headlineText =
-    data?.title || "Precision Laboratory & Biomedical Equipment";
-  const descText =
-    data?.description ||
-    "Global Biomedical LLP supplies premium diagnostic laboratory equipment, hematology & biochemistry analyzers, reagents, and hospital equipment with Pan-India technical service.";
+  const headlineText = data?.title || data?.heading || "";
+  const descText = data?.description || data?.desc || "";
+  const btn1Text = data?.button1Text || data?.btn1Text || data?.button1 || data?.btn1 || data?.buttonText || data?.btnText || data?.exploreBtnText || "";
+  const btn2Text = data?.button2Text || data?.btn2Text || data?.button2 || data?.btn2 || data?.contactBtnText || data?.btnText2 || data?.buttonText2 || "";
 
   return (
     <section className="hero-section position-relative text-white no-print">
@@ -76,35 +75,45 @@ export default function Hero({ city }) {
             </div>
 
             {/* MAIN HEADLINE */}
-            <h1 className="fw-bold hero-main-title mb-3">
-              {headlineText}{" "}
-              <span className="hero-city-accent">
-                {city ? `in ${formatCity(city)}` : "Across India"}
-              </span>
-            </h1>
+            {headlineText ? (
+              <h1 className="fw-bold hero-main-title mb-3">
+                {headlineText}{" "}
+                <span className="hero-city-accent">
+                  {city ? `in ${formatCity(city)}` : "Across India"}
+                </span>
+              </h1>
+            ) : null}
 
             {/* DESCRIPTION */}
-            <p className="hero-desc-text mb-4">
-              {descText}
-              {city ? ` available for instant installation in ${formatCity(city)}.` : ""}
-            </p>
+            {descText ? (
+              <p className="hero-desc-text mb-4">
+                {descText}
+                {city ? ` available for instant installation in ${formatCity(city)}.` : ""}
+              </p>
+            ) : null}
 
             {/* ACTION BUTTONS */}
-            <div className="d-flex flex-wrap gap-3 mb-5">
-              <Link href={city ? `/${city}/products` : "/products"} className="text-decoration-none">
-                <button className="btn btn-hero-primary d-flex align-items-center gap-2 shadow-lg">
-                  <i className="bi bi-grid-3x3-gap-fill"></i>
-                  <span>Explore Products</span>
-                </button>
-              </Link>
+            {(btn1Text || btn2Text) ? (
+              <div className="d-flex flex-wrap gap-3 mb-5">
+                {btn1Text ? (
+                  <Link href={city ? `/${city}/products` : "/products"} className="text-decoration-none">
+                    <button className="btn btn-hero-primary d-flex align-items-center gap-2 shadow-lg">
+                      <i className="bi bi-grid-3x3-gap-fill"></i>
+                      <span>{btn1Text}</span>
+                    </button>
+                  </Link>
+                ) : null}
 
-              <Link href={city ? `/${city}/contact` : "/contact"} className="text-decoration-none">
-                <button className="btn btn-hero-secondary d-flex align-items-center gap-2">
-                  <i className="bi bi-telephone-fill"></i>
-                  <span>Contact Sales</span>
-                </button>
-              </Link>
-            </div>
+                {btn2Text ? (
+                  <Link href={city ? `/${city}/contact` : "/contact"} className="text-decoration-none">
+                    <button className="btn btn-hero-secondary d-flex align-items-center gap-2">
+                      <i className="bi bi-telephone-fill"></i>
+                      <span>{btn2Text}</span>
+                    </button>
+                  </Link>
+                ) : null}
+              </div>
+            ) : null}
 
             {/* STATS / TRUST METRICS */}
             <div className="hero-stats-grid pt-3 border-top border-white-10">
@@ -132,7 +141,7 @@ export default function Hero({ city }) {
               
               {/* MAIN HERO IMAGE */}
               <img
-                src="https://images.unsplash.com/photo-1579154204601-01588f351e67"
+                src={data?.image || data?.imageUrl || (Array.isArray(data?.images) && data.images.length > 0 ? data.images[0] : "") || data?.heroImage || "https://images.unsplash.com/photo-1579154204601-01588f351e67"}
                 className="img-fluid hero-main-img"
                 alt="Global Biomedical Laboratory Equipment Supplier"
               />

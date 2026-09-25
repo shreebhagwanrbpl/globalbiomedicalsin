@@ -3,8 +3,6 @@
 import toast, { Toaster } from "react-hot-toast";
 import "./contact.css";
 import { useState, useEffect } from "react";
-import { db } from "@/lib/firebase";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { usePathname } from "next/navigation";
 import { fetchContactData, fetchDistrictData } from "@/lib/data-fetcher";
 import { getSiteConfig } from "@/lib/site-config";
@@ -114,7 +112,7 @@ export default function Contact() {
   };
 
   const handleSubmit = async () => {
-    const { name, email, phone, message } = form;
+    const { name, email, phone, message, subject } = form;
 
     if (!name.trim() || !email.trim() || !phone.trim() || !message.trim()) {
       return toast.error("Fill all fields");
@@ -131,26 +129,34 @@ export default function Contact() {
     }
 
     try {
-      const siteConfig = getSiteConfig();
-      await addDoc(
-        collection(db, "websitesQueries", siteConfig.websiteDocId, "contactQueries"),
-        {
-          ...form,
-          companyId: siteConfig.companyId,
-          websiteId: siteConfig.websiteId,
-          createdAt: serverTimestamp(),
-        }
-      );
-
-      toast.success("Message sent");
-
-      setForm({
-        name: "",
-        email: "",
-        phone: "",
-        subject: "",
-        message: "",
+      const res = await fetch("/api/contact-query", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: name.trim(),
+          email: email.trim(),
+          phone: phone.trim(),
+          subject: subject?.trim() || "",
+          message: message.trim(),
+        }),
       });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (res.ok && (data.success || data.ok)) {
+        toast.success("Message sent successfully");
+        setForm({
+          name: "",
+          email: "",
+          phone: "",
+          subject: "",
+          message: "",
+        });
+      } else {
+        toast.error(data.error || "Failed to send message");
+      }
     } catch (err) {
       console.error(err);
       toast.error("Failed to send message");

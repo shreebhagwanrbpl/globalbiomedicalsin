@@ -540,19 +540,25 @@ export default function ProductsClient({ initialProducts = [], district = null, 
                   <h2>Product Not Found</h2>
                   <p>
                     {"We couldn't find any products matching"}
-                    <span className="font-semibold text-red-600">
-                      {" \"" + productSearch + "\" "}
-                    </span>
-                    . Please try another keyword or browse categories.
+                    {productSearch ? (
+                      <span className="font-semibold text-success">
+                        {" \"" + productSearch + "\" "}
+                      </span>
+                    ) : (
+                      " your criteria"
+                    )}
+                    . Looking for specific medical or laboratory equipment? Contact our expert team for inquiries and availability.
                   </p>
                   <button
                     onClick={() => {
-                      setSearchInput("");
-                      setProductSearch("");
+                      const targetUrl = district
+                        ? `/${district}/contact`
+                        : `/contact`;
+                      router.push(targetUrl);
                     }}
-                    className="mt-4 px-6 py-2.5 rounded-lg bg-red-600 text-#15803d font-semibold hover:bg-red-700 transition cursor-pointer border-0"
+                    className="mt-4 px-6 py-2.5 rounded-lg btn btn-success fw-semibold text-white transition cursor-pointer border-0 shadow-sm"
                   >
-                    View All Products
+                    Contact Us / Send Inquiry
                   </button>
                 </div>
               ) : (

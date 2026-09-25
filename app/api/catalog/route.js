@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { fetchFullCatalogRaw } from "@/lib/data-fetcher-server";
+import { fetchAdminCatalog } from "@/lib/admin-api";
 import { getSiteConfig } from "@/lib/site-config";
 
 export const dynamic = "force-dynamic";
@@ -9,16 +9,19 @@ export const fetchCache = "force-no-store";
 export async function GET() {
   try {
     const siteConfig = getSiteConfig();
-    const products = await fetchFullCatalogRaw();
+    const products = await fetchAdminCatalog({
+      companyId: siteConfig.companyId,
+      websiteId: siteConfig.websiteDocId || siteConfig.websiteId,
+    });
 
     return NextResponse.json(
       {
         success: true,
         company: siteConfig.companyId,
         website: siteConfig.websiteId,
-        count: products.length,
+        count: Array.isArray(products) ? products.length : 0,
         timestamp: Date.now(),
-        products,
+        products: Array.isArray(products) ? products : [],
       },
       {
         status: 200,
