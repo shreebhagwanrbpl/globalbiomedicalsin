@@ -56,7 +56,7 @@ export async function POST(request) {
       createdAt: new Date().toISOString(),
     };
 
-    // Forward to SQLite Admin API
+    // Forward to the central Admin API (MongoDB-backed)
     await submitAdminProductQuery(payload);
 
     return NextResponse.json(
